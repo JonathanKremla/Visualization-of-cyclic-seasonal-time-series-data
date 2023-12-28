@@ -22,19 +22,15 @@ export default {
   },
   methods: {
     renderGraph() {
-      console.log(this.data)
-
       const width = 800;
       const height = 500;
+      const padding = 50;
 
       const svg = d3.select("svg").attr("width", width).attr("height", height);
-      const g = svg.append("g");
+      const g = svg.append("g").attr("transform", "translate(" + padding + "," + padding + ")");
 
-      //2. Parse the dates
       const parseTime = d3.timeParse("%b %e, %Y");
-      //const parseTime = d3.timeParse("%d-%b-%y");
 
-      //3. Creating the Chart Axes
       const x = d3
         .scaleTime()
         .domain(
@@ -42,8 +38,9 @@ export default {
             return parseTime(d.date);
           })
         )
-        .rangeRound([0, width]);
+        .rangeRound([0, width - 2 * padding]);
       console.log(x)
+
 
       const y = d3
         .scaleLinear()
@@ -52,7 +49,7 @@ export default {
             return d.value;
           })
         )
-        .rangeRound([height, 0]);
+        .rangeRound([height - 2*padding, 0]);
 
       const line = d3
         .line()
@@ -64,15 +61,18 @@ export default {
         });
 
       g.append("g")
-        .attr("transform", "translate(0," + height + ")")
-        .call(d3.axisBottom(x));
+        .attr("transform", "translate(0," + (height-2*padding) + ")")
+        .call(
+          d3
+            .axisBottom(x)
+          );
 
       g.append("g")
         .call(d3.axisLeft(y))
         .append("text")
         .attr("fill", "#000")
         .attr("transform", "rotate(-90)")
-        .attr("y", 6)
+        .attr("y", 6-padding)
         .attr("dy", "0.71em")
         .attr("text-anchor", "end")
 
