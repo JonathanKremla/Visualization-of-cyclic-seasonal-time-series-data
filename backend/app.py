@@ -22,6 +22,7 @@ class SampleDataManager(Resource):
         sampleData['sampleData3']="Third"
 
     def get(self, sampleData_id):
+        print(sampleData[sampleData_id])
         return {sampleData_id: sampleData[sampleData_id]}
 
 class CustomDataManager(Resource):

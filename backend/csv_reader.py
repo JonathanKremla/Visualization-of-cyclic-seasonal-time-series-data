@@ -17,7 +17,6 @@ class CSVReader:
             with open(csv_file_path, 'r', newline='') as csvfile:
                 data = csvfile.read()
                 data = data.replace(';', ',')
-
             # Write the modified CSV data back to the file
             with open(csv_file_path, 'w', newline='') as csvfile:
                 csvfile.write(data)
@@ -35,6 +34,7 @@ class CSVReader:
                 extracted_data = []
                 for entry in csv_reader:
                     extracted_data.append((entry["date"],entry[member_name]))
+                extracted_data.sort()
                 return jsonify(extracted_data) if member_name != "" else jsonify(data)
         except FileNotFoundError:
             print(f"Error: File not found - {file_path}")
