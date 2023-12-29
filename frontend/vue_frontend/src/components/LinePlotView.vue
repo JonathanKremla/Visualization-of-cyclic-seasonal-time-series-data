@@ -3,6 +3,7 @@
     <router-link to="/">
       <button>Home</button>
     </router-link>
+    <v-range-slider></v-range-slider>
     <input
       v-if="this.displayedData"
       type="range"
@@ -18,9 +19,14 @@
 <script >
 //TODO make slider double
 import * as d3 from "d3";
+
 export default {
+  components: {
+  },
   data() {
     return {
+      sliderMin: 20,
+      sliderMax: 80,
       data: null,
       sliderValue: undefined,
       displayedData: undefined,
@@ -31,12 +37,12 @@ export default {
   computed: {
     // Computed property to get the sliced data based on the slider value
     slicedData() {
-      if(this.data !== null) {
+      if (this.data !== null) {
         d3.select("svg").selectAll("*").remove();
-        this.displayedData = this.data.slice(0,this.sliderValue)
-        return this.displayedData
+        this.displayedData = this.data.slice(0, this.sliderValue);
+        return this.displayedData;
       }
-      return []
+      return [];
     },
   },
   mounted() {
@@ -56,7 +62,6 @@ export default {
       this.watcherTimeout = setTimeout(() => {
         this.renderGraph();
       }, 300);
-
     },
     renderGraph() {
       const width = 800;
@@ -130,8 +135,8 @@ export default {
           }),
           value: parseFloat(value),
         }));
-        this.displayedData=this.data
-        this.dataSize=this.data.length
+        this.displayedData = this.data;
+        this.dataSize = this.data.length;
       } catch (error) {
         console.error("Error retrieving data from local storage:", error);
       }
