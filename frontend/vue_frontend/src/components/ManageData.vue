@@ -4,7 +4,7 @@
     <button @click="getMessage(2)" disabled="true">Get Data 2</button>
     <button @click="getMessage(3)" disabled="true">Get Data 3</button>
     <div>
-      <router-link to="/lineplot"> 
+      <router-link to="/lineAndCyclePlot"> 
       <button>Display data as line plot</button>
       </router-link>
     </div>

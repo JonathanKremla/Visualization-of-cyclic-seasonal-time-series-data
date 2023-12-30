@@ -1,16 +1,5 @@
 <template>
   <div>
-    <router-link to="/">
-      <button>Home</button>
-    </router-link>
-    <v-range-slider
-      v-model="this.displayedRange"
-      step="30"
-      show-ticks="always"
-      :ticks = "ticks"
-      :max="this.dataSize"
-      :min=0
-    ></v-range-slider>
     <svg></svg>
   </div>
 </template>
@@ -20,59 +9,22 @@
 import * as d3 from "d3";
 
 export default {
-  components: {
+  props: {
+    displayedData: Object
   },
   data() {
     return {
       ticks: {},
-      displayedRange: [0,0],
       data: null,
-      displayedData: undefined,
       dataSize: 0,
     };
   },
-
-  computed: {
-    // Computed property to get the sliced data based on the slider value
-    slicedData() {
-      if (this.data !== null) {
-        d3.select("svg").selectAll("*").remove();
-        this.displayedData = this.data.slice(this.displayedRange[0], this.displayedRange[1]);
-        return this.displayedData;
-      }
-      return [];
-    },
-  },
-  mounted() {
-    // Retrieve data from local storage when the component is mounted
-    this.retrieveData();
-    this.calculateTicks();
-    this.renderGraph();
-  },
   watch: {
-    slicedData: "debouncedRenderGraph",
+    displayedData: "renderGraph",
   },
   methods: {
-
-    calculateTicks() {
-      const uniqueYears = [...new Set(this.data.map(item => new Date(item.date).getFullYear()))];
-      var counter = 0;
-      uniqueYears.forEach((val) => {
-        this.ticks[counter] = val;
-        counter += 365;
-      })
-      console.log(this.ticks)
-
-    },
-    debouncedRenderGraph() {
-      clearTimeout(this.watcherTimeout);
-
-      // Set a new timeout to debounce the watcher function after 300 milliseconds of inactivity
-      this.watcherTimeout = setTimeout(() => {
-        this.renderGraph();
-      }, 300);
-    },
     renderGraph() {
+      d3.select("svg").selectAll("*").remove();
       const width = 800;
       const height = 500;
       const padding = 50;
@@ -130,26 +82,6 @@ export default {
         .attr("stroke", "steelblue")
         .attr("stroke-width", 1.5)
         .attr("d", line);
-    },
-    retrieveData() {
-      try {
-        // Retrieve JSON string from local storage and parse it to a JavaScript object
-        const jsonData = localStorage.getItem("data");
-        const parsedData = JSON.parse(JSON.parse(jsonData));
-        this.data = Object.entries(parsedData).map(([date, value]) => ({
-          date: new Date(date).toLocaleDateString("en-US", {
-            day: "numeric",
-            month: "short",
-            year: "numeric",
-          }),
-          value: parseFloat(value),
-        }));
-        this.displayedData = this.data;
-        this.dataSize = this.data.length;
-        this.displayedRange = [0,this.dataSize]
-      } catch (error) {
-        console.error("Error retrieving data from local storage:", error);
-      }
     },
   },
 };

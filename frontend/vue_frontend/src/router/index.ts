@@ -1,6 +1,6 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import ManageData from '../components/ManageData.vue'
-import LinePlotView from '../components/LinePlotView.vue'
+import LineAndCycleView from '../components/LineAndCycleView.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -11,9 +11,9 @@ const router = createRouter({
       component: ManageData,
     },
     {
-      path: '/lineplot', 
+      path: '/lineAndCyclePlot', 
       name: 'LinePlot',
-      component: LinePlotView
+      component: LineAndCycleView
     }      
   ]
 })
