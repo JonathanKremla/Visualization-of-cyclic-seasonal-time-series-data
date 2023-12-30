@@ -14,7 +14,6 @@ export default {
   },
   data() {
     return {
-      ticks: {},
       data: null,
       dataSize: 0,
     };

@@ -11,15 +11,17 @@
       :max="this.dataSize"
       :min="0"
     ></v-range-slider>
-    <LinePlotView v-if="this.displayedData" :displayedData="this.displayedData">
+    <LinePlotView v-if="this.displayedData" :displayedData="this.displayedData" >
     </LinePlotView>
+    <CyclePlotView v-if="this.displayedData" :displayedData="this.displayedData" granularity='month-year'></CyclePlotView>
   </div>
 </template>
 
 <script>
 import LinePlotView from "./LinePlotView.vue";
+import CyclePlotView from "./CyclePlotView.vue";
 export default {
-  components: { LinePlotView },
+  components: { LinePlotView, CyclePlotView },
   data() {
     return {
       ticks: {},
@@ -66,6 +68,7 @@ export default {
         this.displayedData = this.data;
         this.dataSize = this.data.length;
         this.displayedRange = [0, this.dataSize];
+        console.log(this.data)
       } catch (error) {
         console.error("Error retrieving data from local storage:", error);
       }
