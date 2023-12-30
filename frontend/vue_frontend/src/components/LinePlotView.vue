@@ -3,15 +3,14 @@
     <router-link to="/">
       <button>Home</button>
     </router-link>
-    <v-range-slider></v-range-slider>
-    <input
-      v-if="this.displayedData"
-      type="range"
-      v-model="sliderValue"
-      :min="1"
+    <v-range-slider
+      v-model="this.displayedRange"
+      step="30"
+      show-ticks="always"
+      :ticks = "ticks"
       :max="this.dataSize"
-      @input="debouncedSliderInput"
-    />
+      :min=0
+    ></v-range-slider>
     <svg></svg>
   </div>
 </template>
@@ -25,10 +24,9 @@ export default {
   },
   data() {
     return {
-      sliderMin: 20,
-      sliderMax: 80,
+      ticks: {},
+      displayedRange: [0,0],
       data: null,
-      sliderValue: undefined,
       displayedData: undefined,
       dataSize: 0,
     };
@@ -39,7 +37,7 @@ export default {
     slicedData() {
       if (this.data !== null) {
         d3.select("svg").selectAll("*").remove();
-        this.displayedData = this.data.slice(0, this.sliderValue);
+        this.displayedData = this.data.slice(this.displayedRange[0], this.displayedRange[1]);
         return this.displayedData;
       }
       return [];
@@ -48,13 +46,24 @@ export default {
   mounted() {
     // Retrieve data from local storage when the component is mounted
     this.retrieveData();
-    this.sliderValue = this.displayedData.length;
+    this.calculateTicks();
     this.renderGraph();
   },
   watch: {
     slicedData: "debouncedRenderGraph",
   },
   methods: {
+
+    calculateTicks() {
+      const uniqueYears = [...new Set(this.data.map(item => new Date(item.date).getFullYear()))];
+      var counter = 0;
+      uniqueYears.forEach((val) => {
+        this.ticks[counter] = val;
+        counter += 365;
+      })
+      console.log(this.ticks)
+
+    },
     debouncedRenderGraph() {
       clearTimeout(this.watcherTimeout);
 
@@ -137,6 +146,7 @@ export default {
         }));
         this.displayedData = this.data;
         this.dataSize = this.data.length;
+        this.displayedRange = [0,this.dataSize]
       } catch (error) {
         console.error("Error retrieving data from local storage:", error);
       }
