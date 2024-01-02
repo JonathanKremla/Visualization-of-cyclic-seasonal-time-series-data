@@ -68,7 +68,6 @@ export default {
         this.displayedData = this.data;
         this.dataSize = this.data.length;
         this.displayedRange = [0, this.dataSize];
-        console.log(this.data)
       } catch (error) {
         console.error("Error retrieving data from local storage:", error);
       }
