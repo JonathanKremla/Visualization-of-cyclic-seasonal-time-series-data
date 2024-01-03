@@ -28,7 +28,6 @@ export default {
   },
   methods: {
     calculateMonthYear() {
-      console.log(this.displayedData);
       //group data by months per year
       var groups = [
         "January",
@@ -57,6 +56,8 @@ export default {
             name: new Intl.DateTimeFormat("en-US", { month: "long" }).format(
               date
             ),
+            category: month,
+            time: year,
             values: [],
             count: 0,
             sum: 0,
@@ -75,27 +76,43 @@ export default {
 
       groups.forEach((month) => {
         Object.entries(groupedData).forEach((entry) => {
-          console.log(entry)
-          if(entry[1].name === month) {
-            if(!(month in aggregatedData)){
+          if (entry[1].name === month) {
+            if (!(month in aggregatedData)) {
               aggregatedData[month] = {
                 name: month,
-                values: entry[1].values
-              }
+                count: 1,
+                average: entry[1].values[0],
+                values: [
+                  {
+                    category: month,
+                    time: entry[1].time,
+                    value: entry[1].values[0],
+                  },
+                ],
+              };
             } else {
-              aggregatedData[month].values.push(entry[1].values[0])
+              aggregatedData[month].average += entry[1].values[0];
+              aggregatedData[month].count += 1;
+              aggregatedData[month].values.push({
+                category: entry[1].name,
+                time: entry[1].time,
+                value: entry[1].values[0],
+              });
             }
           }
-        })
-      })
+        });
+      });
+
+      Object.values(aggregatedData).forEach((val) => {
+        val.average = val.average / val.count;
+      });
+
       return Object.values(aggregatedData);
     },
     groupData() {
-      console.log(this.granularity);
       switch (this.granularity) {
         case "month-year":
           this.aggregatedData = this.calculateMonthYear();
-          console.log(this.aggregatedData);
           this.createCyclePlot();
           break;
 
@@ -104,6 +121,10 @@ export default {
       }
     },
     createCyclePlot() {
+      d3.select(this.$refs.cyclePlot).selectAll("*").remove();
+      console.log(this.aggregatedData);
+      //radius of points
+      const r = 3;
       const svg = d3
         .select(this.$refs.cyclePlot)
         .attr("width", this.width + this.margin.left + this.margin.right)
@@ -111,57 +132,133 @@ export default {
         .append("g")
         .attr("transform", `translate(${this.margin.left},${this.margin.top})`);
 
-      //TODO: For each month, group the values ignore the year -> January: 20,21... and so on.
-
-      const x = d3
-        .scaleBand()
-        .range([0, this.width])
-        .domain(this.aggregatedData.map((obj) => obj.time));
-      console.log(x("February"));
-
+      // Draw the y-axis
       const y = d3
         .scaleLinear()
         .range([this.height, 0])
-        .domain([0, d3.max(this.aggregatedData, (d) => d.value)]);
+        //TODO: Set domain dynamically
+        .domain([
+          Math.min(
+            ...this.aggregatedData.flatMap((category) =>
+              category.values.map((entry) => entry.value)
+            )
+          ),
+          Math.max(
+            ...this.aggregatedData.flatMap((category) =>
+              category.values.map((entry) => entry.value)
+            )
+          ),
+        ]);
+      svg.append("g").call(d3.axisLeft(y));
+
+      console.log();
+
+      const xx = d3
+        .scaleLinear()
+        .range([r * 2, this.width / this.aggregatedData.length - r * 2])
+        .domain([
+          Math.min(
+            ...this.aggregatedData.flatMap((category) =>
+              category.values.map((entry) => entry.time)
+            )
+          ),
+          Math.max(
+            ...this.aggregatedData.flatMap((category) =>
+              category.values.map((entry) => entry.time)
+            )
+          ),
+        ]);
 
       // Draw the x-axis
+      const x = d3
+        .scaleBand()
+        .range([0, this.width])
+        .domain(this.aggregatedData.map((obj) => obj.name));
       svg
         .append("g")
         .attr("transform", "translate(0," + this.height + ")")
         .call(d3.axisBottom(x));
-      //
 
-      // Draw the y-axis
-      svg.append("g").call(d3.axisLeft(y));
-
+      // Draw lines
+      var line = d3
+        .line()
+        .x(function (d) {
+          return x(d.category) + xx(d.time);
+        })
+        .y(function (d) {
+          return y(d.value);
+        });
       svg
-        .append("path")
-        .datum(this.aggregatedData)
-        .attr("fill", "none")
-        .attr("stroke", "#69b3a2")
-        .attr("stroke-width", 1.5)
-        .attr(
-          "d",
-          d3
-            .line()
-            .x((d) => x(d.time)) // Adjust for the center of the band
-            .y((d) => y(d.value))
-        );
-
-      svg
-        .append("g")
-        .selectAll("dot")
+        .selectAll("myLines")
         .data(this.aggregatedData)
+        .enter()
+        .append("path")
+        .attr("d", function (d) {
+          return line(d.values);
+        })
+        .attr("stroke", "steelblue")
+        .style("stroke-width", 2)
+        .style("fill", "none");
+      svg
+        .selectAll(".month-lines")
+        .data(this.aggregatedData)
+        .enter()
+        .append("line")
+        .attr("class", "month-lines")
+        .attr("x1", function (d) {
+          return x(d.name) + x.bandwidth();
+        })
+        .attr("x2", function (d) {
+          return x(d.name) + x.bandwidth();
+        })
+        .attr("y1", 0)
+        .attr("y2", this.height)
+        .attr("stroke", "lightgray")
+        .attr("stroke-dasharray", "2");
+
+      //draw dots
+      svg
+        .selectAll("myDots")
+        .data(this.aggregatedData)
+        .enter()
+        .append("g")
+        .style("fill", "black")
+        .selectAll("myPoints")
+        .data(function (d) {
+          return d.values;
+        })
         .enter()
         .append("circle")
         .attr("cx", function (d) {
-          return x(d.time);
+          return x(d.category) + xx(d.time);
         })
         .attr("cy", function (d) {
           return y(d.value);
         })
-        .attr("r", 1.5)
-        .style("fill", "#69b3a2");
+        .attr("r", r)
+        .attr("stroke", "white");
+      // Draw horizontal lines at the average height for each month
+      svg
+        .selectAll(".average-lines")
+        .data(this.aggregatedData)
+        .enter()
+        .append("line")
+        .attr("class", "average-lines")
+        .attr("x1", function (d) {
+          return x(d.name);
+        })
+        .attr("x2", function (d) {
+          return x(d.name) + x.bandwidth();
+        })
+        .attr("y1", function (d) {
+          return y(d.average);
+        })
+        .attr("y2", function (d) {
+          return y(d.average);
+        })
+        .attr("stroke", "red")
+        .style("stroke-width", 2)
+        .style("stroke-dasharray", "2");
     },
   },
 };

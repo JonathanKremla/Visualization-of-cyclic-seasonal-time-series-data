@@ -11,9 +11,13 @@
       :max="this.dataSize"
       :min="0"
     ></v-range-slider>
-    <LinePlotView v-if="this.displayedData" :displayedData="this.displayedData" >
+    <LinePlotView v-if="this.displayedData" :displayedData="this.displayedData">
     </LinePlotView>
-    <CyclePlotView v-if="this.displayedData" :displayedData="this.displayedData" granularity='month-year'></CyclePlotView>
+    <CyclePlotView
+      v-if="this.displayedData"
+      :displayedData="this.displayedData"
+      granularity="month-year"
+    ></CyclePlotView>
   </div>
 </template>
 

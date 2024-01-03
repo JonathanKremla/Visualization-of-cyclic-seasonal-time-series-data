@@ -1,6 +1,6 @@
 <template>
   <div>
-    <svg></svg>
+    <svg ref="linePlot"></svg>
   </div>
 </template>
 
@@ -23,12 +23,12 @@ export default {
   },
   methods: {
     renderGraph() {
-      d3.select("svg").selectAll("*").remove();
+      d3.select(this.$refs.linePlot).selectAll("*").remove();
       const width = 800;
       const height = 500;
       const padding = 50;
 
-      const svg = d3.select("svg").attr("width", width).attr("height", height);
+      const svg = d3.select(this.$refs.linePlot).attr("width", width).attr("height", height);
       const g = svg
         .append("g")
         .attr("transform", "translate(" + padding + "," + padding + ")");
