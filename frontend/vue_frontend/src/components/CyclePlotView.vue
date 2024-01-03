@@ -28,36 +28,67 @@ export default {
   },
   methods: {
     calculateMonthYear() {
+      console.log(this.displayedData);
+      //group data by months per year
+      var groups = [
+        "January",
+        "February",
+        "March",
+        "April",
+        "May",
+        "June",
+        "July",
+        "August",
+        "September",
+        "October",
+        "November",
+        "December",
+      ];
       const groupedData = {};
-      const aggregatedData = {};
-
+      const aggregatedData = [];
       this.displayedData.forEach((entry) => {
         const date = new Date(entry.date);
-        const monthYear = `${date.getMonth() + 1}-${date.getFullYear()}`;
-        if (!groupedData[monthYear]) {
-          groupedData[monthYear] = {
-            entries: [],
-            sum: 0,
+        const month = date.getMonth();
+        const year = date.getFullYear();
+        const monthYearKey = `${month}-${year}`;
+
+        if (!groupedData[monthYearKey]) {
+          groupedData[monthYearKey] = {
+            name: new Intl.DateTimeFormat("en-US", { month: "long" }).format(
+              date
+            ),
+            values: [],
             count: 0,
+            sum: 0,
           };
         }
 
-        groupedData[monthYear].entries.push(entry);
-        groupedData[monthYear].sum += entry.value;
-        groupedData[monthYear].count += 1;
+        groupedData[monthYearKey].count += 1;
+        groupedData[monthYearKey].sum += entry.value;
       });
-      for (var [monthYear, data] of Object.entries(groupedData)) {
-        aggregatedData[monthYear] = data.sum / data.count;
-      }
 
-      var tmp = Object.entries(aggregatedData).map(function ([time, value]) {
-        return { time: time, value: value };
+      // Calculate averages and store in the values array
+      Object.values(groupedData).forEach((monthData) => {
+        const average = monthData.sum / monthData.count;
+        monthData.values.push(average);
       });
-      return tmp.sort((a, b) => {
-        const [aMonth, aYear] = a.time.split("-");
-        const [bMonth, bYear] = b.time.split("-");
-        return aMonth - bMonth || aYear - bYear;
-      });
+
+      groups.forEach((month) => {
+        Object.entries(groupedData).forEach((entry) => {
+          console.log(entry)
+          if(entry[1].name === month) {
+            if(!(month in aggregatedData)){
+              aggregatedData[month] = {
+                name: month,
+                values: entry[1].values
+              }
+            } else {
+              aggregatedData[month].values.push(entry[1].values[0])
+            }
+          }
+        })
+      })
+      return Object.values(aggregatedData);
     },
     groupData() {
       console.log(this.granularity);
@@ -79,6 +110,8 @@ export default {
         .attr("height", this.height + this.margin.top + this.margin.bottom)
         .append("g")
         .attr("transform", `translate(${this.margin.left},${this.margin.top})`);
+
+      //TODO: For each month, group the values ignore the year -> January: 20,21... and so on.
 
       const x = d3
         .scaleBand()
