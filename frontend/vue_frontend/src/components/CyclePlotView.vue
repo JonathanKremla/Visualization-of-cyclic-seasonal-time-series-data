@@ -8,6 +8,28 @@
 <script>
 import * as d3 from "d3";
 
+// Source: https://weeknumber.com/how-to/javascript
+
+// Returns the ISO week of the date.
+Date.prototype.getWeek = function () {
+  var date = new Date(this.getTime());
+  date.setHours(0, 0, 0, 0);
+  // Thursday in current week decides the year.
+  date.setDate(date.getDate() + 3 - ((date.getDay() + 6) % 7));
+  // January 4 is always in week 1.
+  var week1 = new Date(date.getFullYear(), 0, 4);
+  // Adjust to Thursday in week 1 and count number of weeks from date to week1.
+  return (
+    1 +
+    Math.round(
+      ((date.getTime() - week1.getTime()) / 86400000 -
+        3 +
+        ((week1.getDay() + 6) % 7)) /
+        7
+    )
+  );
+};
+
 export default {
   props: {
     displayedData: Object,
@@ -68,7 +90,6 @@ export default {
         groupedData[monthYearKey].sum += entry.value;
       });
 
-      // Calculate averages and store in the values array
       Object.values(groupedData).forEach((monthData) => {
         const average = monthData.sum / monthData.count;
         monthData.values.push(average);
@@ -109,20 +130,95 @@ export default {
 
       return Object.values(aggregatedData);
     },
+    calculateDayWeek() {
+      //group data by Day per Week
+      var groups = [
+        "Monday",
+        "Tuesday",
+        "Wednesday",
+        "Thursday",
+        "Friday",
+        "Saturday",
+        "Sunday",
+      ];
+      const groupedData = {};
+      const aggregatedData = [];
+      this.displayedData.forEach((entry) => {
+        const date = new Date(entry.date);
+        const day = date.getDay();
+        const week = date.getWeek();
+        const weekYearKey = `${day}-${week}`;
+
+        if (!groupedData[weekYearKey]) {
+          groupedData[weekYearKey] = {
+            name: day,
+            category: groups[day],
+            time: week,
+            values: [],
+            count: 0,
+            sum: 0,
+          };
+        }
+
+        groupedData[weekYearKey].count += 1;
+        groupedData[weekYearKey].sum += entry.value;
+      });
+      Object.values(groupedData).forEach((dayData) => {
+        const average = dayData.sum / dayData.count;
+        dayData.values.push(average);
+      });
+      groups.forEach((day) => {
+        Object.entries(groupedData).forEach((entry) => {
+          if (entry[1].category === day) {
+            if (!(day in aggregatedData)) {
+              aggregatedData[day] = {
+                name: day,
+                count: 1,
+                average: entry[1].values[0],
+                values: [
+                  {
+                    category: day,
+                    time: entry[1].time,
+                    value: entry[1].values[0],
+                  },
+                ],
+              };
+            } else {
+              aggregatedData[day].average += entry[1].values[0];
+              aggregatedData[day].count += 1;
+              aggregatedData[day].values.push({
+                category: day,
+                time: entry[1].time,
+                value: entry[1].values[0],
+              });
+            }
+          }
+        });
+        //sort values by weeks
+        aggregatedData[day].values.sort((a,b) => {return a.time-b.time});
+      });
+
+      Object.values(aggregatedData).forEach((val) => {
+        val.average = val.average / val.count;
+      });
+      return Object.values(aggregatedData)
+    },
     groupData() {
       switch (this.granularity) {
         case "month-year":
           this.aggregatedData = this.calculateMonthYear();
           this.createCyclePlot();
           break;
-
+        case "day-week":
+          this.aggregatedData = this.calculateDayWeek();
+          this.createCyclePlot();
+          break;
         default:
           break;
       }
     },
     createCyclePlot() {
       d3.select(this.$refs.cyclePlot).selectAll("*").remove();
-      console.log(this.aggregatedData);
       //radius of points
       const r = 3;
       const svg = d3
@@ -136,7 +232,6 @@ export default {
       const y = d3
         .scaleLinear()
         .range([this.height, 0])
-        //TODO: Set domain dynamically
         .domain([
           Math.min(
             ...this.aggregatedData.flatMap((category) =>
@@ -150,9 +245,6 @@ export default {
           ),
         ]);
       svg.append("g").call(d3.axisLeft(y));
-
-      console.log();
-
       const xx = d3
         .scaleLinear()
         .range([r * 2, this.width / this.aggregatedData.length - r * 2])

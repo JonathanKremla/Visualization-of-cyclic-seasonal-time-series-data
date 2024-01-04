@@ -16,7 +16,7 @@
     <CyclePlotView
       v-if="this.displayedData"
       :displayedData="this.displayedData"
-      granularity="month-year"
+      granularity="day-week"
     ></CyclePlotView>
   </div>
 </template>
