@@ -11,12 +11,21 @@
       :max="this.dataSize"
       :min="0"
     ></v-range-slider>
+    <h2>Line Plot</h2>
     <LinePlotView v-if="this.displayedData" :displayedData="this.displayedData">
     </LinePlotView>
+
+    <h2>Cycle Plot</h2>
+    <v-select 
+      v-model="this.selectedGranularity"
+      label = "Select Granularity:"
+      :items = "['Months-per-Year', 'Day-per-Week']"
+    ></v-select>
+
     <CyclePlotView
       v-if="this.displayedData"
       :displayedData="this.displayedData"
-      granularity="day-week"
+      :granularity="this.selectedGranularity"
     ></CyclePlotView>
   </div>
 </template>
@@ -33,6 +42,7 @@ export default {
       data: null,
       displayedData: null,
       dataSize: 0,
+      selectedGranularity: "",
     };
   },
   watch: {

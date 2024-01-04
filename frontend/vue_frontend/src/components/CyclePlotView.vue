@@ -1,6 +1,5 @@
 <template>
   <div>
-    <h2>Cycle Plot Example</h2>
     <svg ref="cyclePlot"></svg>
   </div>
 </template>
@@ -47,6 +46,7 @@ export default {
   },
   watch: {
     displayedData: "groupData",
+    granularity: "groupData",
   },
   methods: {
     calculateMonthYear() {
@@ -205,11 +205,11 @@ export default {
     },
     groupData() {
       switch (this.granularity) {
-        case "month-year":
+        case "Months-per-Year":
           this.aggregatedData = this.calculateMonthYear();
           this.createCyclePlot();
           break;
-        case "day-week":
+        case "Day-per-Week":
           this.aggregatedData = this.calculateDayWeek();
           this.createCyclePlot();
           break;
