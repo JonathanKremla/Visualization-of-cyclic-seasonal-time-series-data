@@ -1,56 +1,67 @@
 <template>
   <div>
-    <button @click="getMessage(1)">Get Data 1</button>
-    <button @click="getMessage(2)" disabled="true">Get Data 2</button>
-    <button @click="getMessage(3)" disabled="true">Get Data 3</button>
+    <h2>Choose data set:</h2>
     <div>
-      <router-link to="/lineAndCyclePlot"> 
-      <button>Display data as line plot</button>
+      <v-btn-toggle v-model="chosenDataSet">
+        <v-btn
+          @click="getMessage(1)"
+          value="Weather data of max temperatures per day from Raleigh Durham in Fahrenheit from 2017 to 2022"
+          >Get Data 1</v-btn
+        >
+        <v-btn @click="getMessage(2)" value="2">Get Data 2</v-btn>
+        <v-btn @click="getMessage(3)" value="3">Get Data 3</v-btn>
+      </v-btn-toggle>
+      <h2 v-if="chosenDataSet">Chosen Data Set:</h2>
+      <pre>{{ chosenDataSet }}</pre>
+    </div>
+
+    <div v-if="chosenDataSet">
+      <h2>Choose displayment:</h2>
+      <router-link to="/lineAndCyclePlot">
+        <v-btn>Display data as line plot and cyle plot</v-btn>
+      </router-link>
+      <router-link to="/lineAndCyclePlot">
+        <v-btn>Display data as line plot and spiral plot</v-btn>
       </router-link>
     </div>
-
-    <div>
-      <label for="customData">Enter Custom Data:</label>
-      <input type="text" id="customData" v-model="customData" />
-      <button @click="sendCustomData">Send Custom Data</button>
-    </div>
   </div>
-
-
 </template>
 
 <script>
-import axios from 'axios';
-import LinePlotView from './LinePlotView.vue';
+import axios from "axios";
+import LinePlotView from "./LinePlotView.vue";
 
 export default {
   components: { LinePlotView },
-  name: 'ManageData',
+  name: "ManageData",
   data() {
     return {
-      data: '',
-      customData: '',
+      chosenDataSet: null,
+      data: "",
+      customData: "",
     };
   },
   methods: {
     getMessage(id) {
       const path = `http://localhost:5001/sample/sampleData${id}`;
-      axios.get(path)
+      axios
+        .get(path)
         .then((res) => {
-          localStorage.setItem("data", JSON.stringify(res.data.sampleData1))
+          localStorage.setItem("data", JSON.stringify(res.data.sampleData1));
         })
         .catch((error) => {
           console.error(error);
         });
     },
     sendCustomData() {
-      const path = 'http://localhost:5001/custom/customData1';
-      axios.put(path, { data: this.customData })
+      const path = "http://localhost:5001/custom/customData1";
+      axios
+        .put(path, { data: this.customData })
         .then((res) => {
-          localStorage.setItem("data", JSON.stringify(res.data))
+          localStorage.setItem("data", JSON.stringify(res.data));
         })
         .catch((error) => {
-          console.error('Error sending custom data:', error);
+          console.error("Error sending custom data:", error);
         });
     },
   },
