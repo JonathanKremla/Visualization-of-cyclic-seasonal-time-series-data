@@ -5,7 +5,6 @@
 </template>
 
 <script >
-//TODO make slider double
 import * as d3 from "d3";
 
 export default {

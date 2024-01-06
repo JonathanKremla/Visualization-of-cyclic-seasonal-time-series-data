@@ -20,7 +20,7 @@
       <router-link to="/lineAndCyclePlot">
         <v-btn>Display data as line plot and cyle plot</v-btn>
       </router-link>
-      <router-link to="/lineAndCyclePlot">
+      <router-link to="/lineAndSpiralPlot">
         <v-btn>Display data as line plot and spiral plot</v-btn>
       </router-link>
     </div>
