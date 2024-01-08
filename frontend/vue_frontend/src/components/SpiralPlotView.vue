@@ -7,53 +7,39 @@
 
 <script >
 import * as d3 from "d3";
-import { render } from "vue";
 
 export default {
   props: {
     displayedData: Object,
+    segmentsPerCycle: Number,
   },
   data() {
     return {
       radians: 0.0174532925,
+      cyclePadding: 3,
+      cycles:undefined,
       data: null,
-      width: 500,
-      height: 500,
+      radius: 400,
+      innerRatio: 0.3,
+      width: 1000,
+      height: 1000,
       dataSize: 0,
-      radius: 250,
-      innerRatio: 0.3125,
       //set radius for empty space
       margin: { top: 50, right: 50, bottom: 50, left: 50 },
-      segmentsPerCycle: 365,
-      months: [
-        "Jan",
-        "Feb",
-        "Mar",
-        "Apr",
-        "May",
-        "Jun",
-        "Jul",
-        "Aug",
-        "Sep",
-        "Oct",
-        "Nov",
-        "Dec",
-      ],
       segmentAngle: undefined,
       innerRadius: undefined,
-      cycles: undefined,
       segmentWidth: undefined,
-      labelRadius: undefined,
     };
   },
   watch: {
     displayedData: "prepareData",
+    segmentsPerCycle: "prepareData",
+    cycles: "prepareData",
   },
   methods: {
     prepareData() {
       this.innerRadius = this.radius * this.innerRatio;
       this.segmentAngle = 360 / this.segmentsPerCycle;
-      this.labelRadius = this.radius + 5;
       console.log(this.displayedData);
       this.cycles = Math.ceil(
         this.displayedData.length / this.segmentsPerCycle
@@ -136,13 +122,13 @@ export default {
         var endAngle = (position + 1) * this.segmentAngle;
         //console.log("angles: " + startAngle +", " + endAngle)
 
-        var startInnerRadius =
+        var startInnerRadius = this.cyclePadding +
           this.innerRadius + (i / this.segmentsPerCycle) * this.segmentWidth;
-        var startOuterRadius =
+        var startOuterRadius =  
           this.innerRadius +
           (i / this.segmentsPerCycle) * this.segmentWidth +
           this.segmentWidth;
-        var endInnerRadius =
+        var endInnerRadius = this.cyclePadding + 
           this.innerRadius +
           ((i + 1) / this.segmentsPerCycle) * this.segmentWidth;
         var endOuterRadius =
@@ -166,10 +152,10 @@ export default {
 
         let midAngle = startAngle + this.segmentAngle / 2;
         let midInnerRadius =
-          this.innerRadius +
+          this.innerRadius + this.cyclePadding +
           ((i + 0.5) / this.segmentsPerCycle) * this.segmentWidth;
         let midOuterRadius =
-          this.innerRadius +
+          this.innerRadius + 
           ((i + 0.5) / this.segmentsPerCycle) * this.segmentWidth +
           this.segmentWidth;
 
@@ -180,7 +166,7 @@ export default {
         d.mid2y = y(midAngle, midOuterRadius);
 
         //quadratic Bézier formula
-        d.controlPoint1x = (d.mid1x - 0.25 * d.x1 - 0.25 * d.x2) / 0.5;
+        d.controlPoint1x =(d.mid1x - 0.25 * d.x1 - 0.25 * d.x2) / 0.5;
         d.controlPoint1y = (d.mid1y - 0.25 * d.y1 - 0.25 * d.y2) / 0.5;
 
         d.controlPoint2x = (d.mid2x - 0.25 * d.x3 - 0.25 * d.x4) / 0.5;
@@ -226,7 +212,6 @@ export default {
         .style("fill", function (d) {
           return color(d.value);
         })
-        .style("stroke", "white");
 
     },
   },

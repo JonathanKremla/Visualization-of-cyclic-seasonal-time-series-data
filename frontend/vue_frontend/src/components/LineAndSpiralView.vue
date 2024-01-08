@@ -16,11 +16,34 @@
     </LinePlotView>
 
     <h2>Spiral Plot</h2>
-    <SpiralPlotView
-      v-if="this.displayedData"
-      :displayedData="this.displayedData"
-      :granularity="this.selectedGranularity"
-    ></SpiralPlotView>
+    <div>
+      <div class="text-caption">Segments per Cycle</div>
+      <v-slider
+        v-if="this.displayedData"
+        aria-label="Segments per Cycle"
+        step="1"
+        v-model="this.segmentsPerCycle"
+        :max="this.displayedData.length"
+        min="1"
+        thumb-label="always"
+      >
+        <template v-slot:append>
+          <v-text-field
+            v-model="this.segmentsPerCycle"
+            hide-details
+            single-line
+            density="compact"
+            type="number"
+            style="width: 100px"
+          ></v-text-field>
+        </template>
+      </v-slider>
+      <SpiralPlotView
+        v-if="this.displayedData"
+        :displayedData="this.displayedData"
+        :segmentsPerCycle="this.segmentsPerCycle"
+      ></SpiralPlotView>
+    </div>
   </div>
 </template>
 
@@ -33,6 +56,7 @@ export default {
     return {
       ticks: {},
       displayedRange: [0, 0],
+      segmentsPerCycle: 365,
       data: null,
       displayedData: null,
       dataSize: 0,
@@ -43,6 +67,7 @@ export default {
   },
   computed: {},
   mounted() {
+    this.cycles = this.displayedData / this.segmentsPerCycle;
     this.retrieveData();
     this.calculateTicks();
   },
