@@ -27,13 +27,13 @@ class CSVReader:
         except Exception as e:
             print(f"An error occurred during CSV preprocessing: {e}")
 
-    def read_csv(self, file_path, member_name):
+    def read_csv(self, file_path, member_name, time_name):
         try:
             with open(file_path, 'r', newline='') as csvfile:
                 csv_reader = csv.DictReader(csvfile)
                 extracted_data = []
                 for entry in csv_reader:
-                    extracted_data.append((entry["date"],entry[member_name]))
+                    extracted_data.append((entry[time_name],entry[member_name]))
                 extracted_data.sort()
                 return jsonify(extracted_data) if member_name != "" else jsonify(data)
         except FileNotFoundError:

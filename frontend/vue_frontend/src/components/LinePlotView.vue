@@ -22,6 +22,7 @@ export default {
   },
   methods: {
     renderGraph() {
+      console.log(this.displayedData)
       d3.select(this.$refs.linePlot).selectAll("*").remove();
       const width = 800;
       const height = 500;
@@ -32,7 +33,7 @@ export default {
         .append("g")
         .attr("transform", "translate(" + padding + "," + padding + ")");
 
-      const parseTime = d3.timeParse("%b %e, %Y");
+      const parseTime = d3.timeParse("%b %e, %Y, %I:%M:%S %p");
 
       const x = d3
         .scaleTime()

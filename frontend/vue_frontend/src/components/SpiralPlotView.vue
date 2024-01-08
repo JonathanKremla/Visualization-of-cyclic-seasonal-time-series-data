@@ -16,7 +16,7 @@ export default {
   data() {
     return {
       radians: 0.0174532925,
-      cyclePadding: 3,
+      cyclePadding: 1,
       cycles:undefined,
       data: null,
       radius: 400,

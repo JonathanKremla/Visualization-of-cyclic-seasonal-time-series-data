@@ -16,10 +16,10 @@
     </LinePlotView>
 
     <h2>Cycle Plot</h2>
-    <v-select 
+    <v-select
       v-model="this.selectedGranularity"
-      label = "Select Granularity:"
-      :items = "['Months-per-Year', 'Day-per-Week']"
+      label="Select Granularity:"
+      :items="['Months-per-Year', 'Day-per-Week']"
     ></v-select>
 
     <CyclePlotView
@@ -73,12 +73,16 @@ export default {
         const parsedData = JSON.parse(JSON.parse(jsonData));
         this.data = Object.entries(parsedData).map(([date, value]) => ({
           date: new Date(date).toLocaleDateString("en-US", {
+            hour: "numeric",
+            minute: "numeric",
+            second: "numeric",
             day: "numeric",
             month: "short",
             year: "numeric",
           }),
           value: parseFloat(value),
         }));
+        console.log(this.data);
         this.displayedData = this.data;
         this.dataSize = this.data.length;
         this.displayedRange = [0, this.dataSize];
@@ -86,15 +90,25 @@ export default {
         console.error("Error retrieving data from local storage:", error);
       }
     },
+    //TODO: Calculate ticks for finer granularity
     calculateTicks() {
+      const uniqueMonths = [
+        ...new Set(this.data.map((item) => new Date(item.date).getMonth())),
+      ];
       const uniqueYears = [
         ...new Set(this.data.map((item) => new Date(item.date).getFullYear())),
       ];
       var counter = 0;
-      uniqueYears.forEach((val) => {
-        this.ticks[counter] = val;
-        counter += 365;
-      });
+      for (let index = 0; index < uniqueYears.length; index++) {
+        uniqueMonths.forEach((val) => {
+          if (val === 0) {
+            this.ticks[counter * 30] = uniqueYears[index];
+          } else {
+            this.ticks[counter * 30] = "";
+          }
+          counter += 1;
+        });
+      }
     },
   },
 };

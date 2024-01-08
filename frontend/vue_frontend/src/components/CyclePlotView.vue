@@ -67,8 +67,10 @@ export default {
       ];
       const groupedData = {};
       const aggregatedData = [];
+      console.log(this.displayedData)
+      const parseTime = d3.timeParse("%b %e, %Y, %I:%M:%S %p");
       this.displayedData.forEach((entry) => {
-        const date = new Date(entry.date);
+        const date = parseTime(entry.date);
         const month = date.getMonth();
         const year = date.getFullYear();
         const monthYearKey = `${month}-${year}`;
@@ -143,8 +145,9 @@ export default {
       ];
       const groupedData = {};
       const aggregatedData = [];
+      const parseTime = d3.timeParse("%b %e, %Y, %I:%M:%S %p");
       this.displayedData.forEach((entry) => {
-        const date = new Date(entry.date);
+        const date = parseTime(entry.date);
         const day = date.getDay();
         const week = date.getWeek();
         const weekYearKey = `${day}-${week}`;

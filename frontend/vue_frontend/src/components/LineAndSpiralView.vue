@@ -91,6 +91,9 @@ export default {
         const parsedData = JSON.parse(JSON.parse(jsonData));
         this.data = Object.entries(parsedData).map(([date, value]) => ({
           date: new Date(date).toLocaleDateString("en-US", {
+            hour: "numeric",
+            minute: "numeric",
+            second: "numeric",
             day: "numeric",
             month: "short",
             year: "numeric",
@@ -105,14 +108,23 @@ export default {
       }
     },
     calculateTicks() {
+      const uniqueMonths = [
+        ...new Set(this.data.map((item) => new Date(item.date).getMonth())),
+      ];
       const uniqueYears = [
         ...new Set(this.data.map((item) => new Date(item.date).getFullYear())),
       ];
       var counter = 0;
-      uniqueYears.forEach((val) => {
-        this.ticks[counter] = val;
-        counter += 365;
-      });
+      for (let index = 0; index < uniqueYears.length; index++) {
+        uniqueMonths.forEach((val) => {
+          if (val === 0) {
+            this.ticks[counter * 30] = uniqueYears[index];
+          } else {
+            this.ticks[counter * 30] = "";
+          }
+          counter += 1;
+        });
+      }
     },
   },
 };

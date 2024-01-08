@@ -29,10 +29,8 @@
 
 <script>
 import axios from "axios";
-import LinePlotView from "./LinePlotView.vue";
 
 export default {
-  components: { LinePlotView },
   name: "ManageData",
   data() {
     return {
@@ -47,7 +45,8 @@ export default {
       axios
         .get(path)
         .then((res) => {
-          localStorage.setItem("data", JSON.stringify(res.data.sampleData1));
+          console.log(res)
+          localStorage.setItem("data", JSON.stringify(eval(`res.data.sampleData${id}`)));
         })
         .catch((error) => {
           console.error(error);
