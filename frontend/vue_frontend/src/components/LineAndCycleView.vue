@@ -3,14 +3,12 @@
     <router-link to="/">
       <button>Home</button>
     </router-link>
-    <v-range-slider
-      v-model="this.displayedRange"
-      step="30"
-      show-ticks="always"
-      :ticks="ticks"
-      :max="this.dataSize"
-      :min="0"
-    ></v-range-slider>
+    <CustomRangeSlider 
+    v-if="this.dataSize"
+    :data="this.data"
+    :max="this.dataSize"
+    v-on:updatedRange="updateRange"
+    ></CustomRangeSlider>
     <h2>Line Plot</h2>
     <LinePlotView v-if="this.displayedData" :displayedData="this.displayedData">
     </LinePlotView>
@@ -33,8 +31,9 @@
 <script>
 import LinePlotView from "./LinePlotView.vue";
 import CyclePlotView from "./CyclePlotView.vue";
+import CustomRangeSlider from './CustomRangeSlider.vue';
 export default {
-  components: { LinePlotView, CyclePlotView },
+  components: { LinePlotView, CyclePlotView, CustomRangeSlider},
   data() {
     return {
       ticks: {},
@@ -51,9 +50,11 @@ export default {
   computed: {},
   mounted() {
     this.retrieveData();
-    this.calculateTicks();
   },
   methods: {
+    updateRange(updatedRange){
+      this.displayedRange = updatedRange
+    },
     sliceData() {
       if (this.displayedData !== null) {
         clearTimeout(this.watcherTimeout);
@@ -82,32 +83,11 @@ export default {
           }),
           value: parseFloat(value),
         }));
-        console.log(this.data);
         this.displayedData = this.data;
         this.dataSize = this.data.length;
         this.displayedRange = [0, this.dataSize];
       } catch (error) {
         console.error("Error retrieving data from local storage:", error);
-      }
-    },
-    //TODO: Calculate ticks for finer granularity
-    calculateTicks() {
-      const uniqueMonths = [
-        ...new Set(this.data.map((item) => new Date(item.date).getMonth())),
-      ];
-      const uniqueYears = [
-        ...new Set(this.data.map((item) => new Date(item.date).getFullYear())),
-      ];
-      var counter = 0;
-      for (let index = 0; index < uniqueYears.length; index++) {
-        uniqueMonths.forEach((val) => {
-          if (val === 0) {
-            this.ticks[counter * 30] = uniqueYears[index];
-          } else {
-            this.ticks[counter * 30] = "";
-          }
-          counter += 1;
-        });
       }
     },
   },

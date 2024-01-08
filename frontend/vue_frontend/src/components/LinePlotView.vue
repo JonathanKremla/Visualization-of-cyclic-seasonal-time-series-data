@@ -22,7 +22,6 @@ export default {
   },
   methods: {
     renderGraph() {
-      console.log(this.displayedData)
       d3.select(this.$refs.linePlot).selectAll("*").remove();
       const width = 800;
       const height = 500;

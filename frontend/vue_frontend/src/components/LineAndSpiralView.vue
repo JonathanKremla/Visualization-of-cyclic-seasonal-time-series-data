@@ -3,6 +3,12 @@
     <router-link to="/">
       <button>Home</button>
     </router-link>
+    <CustomRangeSlider 
+    v-if="this.dataSize"
+    :data="this.data"
+    :max="this.dataSize"
+    v-on:updatedRange="updateRange"
+    ></CustomRangeSlider>
     <v-range-slider
       v-model="this.displayedRange"
       step="30"
@@ -48,10 +54,11 @@
 </template>
 
 <script>
+import CustomRangeSlider from './CustomRangeSlider.vue';
 import LinePlotView from "./LinePlotView.vue";
 import SpiralPlotView from "./SpiralPlotView.vue";
 export default {
-  components: { LinePlotView, SpiralPlotView },
+  components: { LinePlotView, SpiralPlotView, CustomRangeSlider},
   data() {
     return {
       ticks: {},
@@ -72,6 +79,10 @@ export default {
     this.calculateTicks();
   },
   methods: {
+    updateRange(updatedRange) {
+      this.displayedRange = updatedRange
+
+    },
     sliceData() {
       if (this.displayedData !== null) {
         clearTimeout(this.watcherTimeout);
