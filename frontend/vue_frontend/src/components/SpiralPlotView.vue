@@ -40,15 +40,11 @@ export default {
     prepareData() {
       this.innerRadius = this.radius * this.innerRatio;
       this.segmentAngle = 360 / this.segmentsPerCycle;
-      console.log(this.displayedData);
       this.cycles = Math.ceil(
         this.displayedData.length / this.segmentsPerCycle
       );
-      console.log("cycles: " + this.cycles);
-      console.log(this.innerRadius);
       this.segmentWidth =
         (this.radius * (1 - this.innerRatio)) / (this.cycles + 1);
-      console.log("Segments width: " + this.segmentWidth);
       this.data = this.displayedData.map((entry) => {
         const { date, value } = entry;
         const parsedDate = new Date(date);
@@ -68,7 +64,6 @@ export default {
       this.data.sort(function (a, b) {
         return a.year - b.year || a.month - b.month;
       });
-      console.log(this.data);
       this.renderGraph();
     },
 

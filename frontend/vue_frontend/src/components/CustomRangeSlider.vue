@@ -1,58 +1,84 @@
 <template>
-    <v-range-slider
-      v-if="this.max"
-      v-model="this.displayedRange"
-      step= "30"
-      show-ticks="always"
-      :ticks="this.ticks"
-      :max="this.max"
-      min="1"
-    ></v-range-slider>
+  <v-range-slider
+    v-if="this.max"
+    v-model="this.displayedRange"
+    step="30"
+    show-ticks="always"
+    :ticks="this.ticks"
+    :max="this.max"
+    min="1"
+  ></v-range-slider>
 </template>
 <script>
-
 export default {
   props: {
     data: Object,
     max: Number,
+    granularity: String,
   },
   data() {
     return {
-      displayedRange: [0,0],
+      displayedRange: [0, 0],
       ticks: {},
-    }
+    };
   },
   mounted() {
-    this.displayedRange = [1, this.max]
+    this.displayedRange = [1, this.max];
+    this.calculateTicks();
   },
   watch: {
-   displayedRange:  "sendUpdatedRange"
+    displayedRange: "sendUpdatedRange",
   },
-  
+
   methods: {
     sendUpdatedRange() {
-      this.$emit('updatedRange', this.displayedRange);
+      this.$emit("updatedRange", this.displayedRange);
     },
     //TODO: Calculate ticks for finer granularity
     calculateTicks() {
-      const uniqueMonths = [
-        ...new Set(this.data.map((item) => new Date(item.date).getMonth())),
-      ];
-      const uniqueYears = [
-        ...new Set(this.data.map((item) => new Date(item.date).getFullYear())),
-      ];
-      var counter = 0;
-      for (let index = 0; index < uniqueYears.length; index++) {
-        uniqueMonths.forEach((val) => {
-          if (val === 0) {
-            this.ticks[counter * 30] = uniqueYears[index];
-          } else {
-            this.ticks[counter * 30] = "";
-          }
-          counter += 1;
-        });
+      if (this.granularity === "day") {
+        const uniqueMonths = [
+          ...new Set(this.data.map((item) => new Date(item.date).getMonth())),
+        ];
+        console.log(uniqueMonths);
+        const uniqueYears = [
+          ...new Set(
+            this.data.map((item) => new Date(item.date).getFullYear())
+          ),
+        ];
+        var counter = 0;
+        for (let index = 0; index < uniqueYears.length; index++) {
+          uniqueMonths.forEach((val) => {
+            if (val === 0) {
+              this.ticks[counter * 30] = uniqueYears[index];
+            } else {
+              this.ticks[counter * 30] = "";
+            }
+            counter += 1;
+          });
+        }
+      }
+      if (this.granularity === "hour") {
+        const uniqueMonths = [
+          ...new Set(this.data.map((item) => new Date(item.date).getMonth())),
+        ];
+        console.log(uniqueMonths);
+        const uniqueDays = [
+          ...new Set(
+            this.data.map((item) => new Date(item.date).getDate())
+          ),
+        ];
+        var counter = 0;
+        for (let index = 0; index < uniqueMonths.length; index++) {
+          uniqueMonths.forEach((val) => {
+            this.ticks[counter * 30] = uniqueMonths[index];
+            this.ticks[counter] = "";
+            counter += 1;
+          });
+        }
+
       }
     },
-  }
-}
+  },
+};
 </script>
