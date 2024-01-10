@@ -2,7 +2,7 @@
   <v-range-slider
     v-if="this.max"
     v-model="this.displayedRange"
-    step="30"
+    :step=this.steps
     show-ticks="always"
     :ticks="this.ticks"
     :max="this.max"
@@ -20,6 +20,7 @@ export default {
     return {
       displayedRange: [0, 0],
       ticks: {},
+      steps: 1,
     };
   },
   mounted() {
@@ -37,6 +38,7 @@ export default {
     //TODO: Calculate ticks for finer granularity
     calculateTicks() {
       if (this.granularity === "day") {
+        this.steps=30;
         const uniqueMonths = [
           ...new Set(this.data.map((item) => new Date(item.date).getMonth())),
         ];
@@ -46,37 +48,29 @@ export default {
             this.data.map((item) => new Date(item.date).getFullYear())
           ),
         ];
-        var counter = 0;
         for (let index = 0; index < uniqueYears.length; index++) {
           uniqueMonths.forEach((val) => {
             if (val === 0) {
-              this.ticks[counter * 30] = uniqueYears[index];
+              this.ticks[index * 30] = uniqueYears[index];
             } else {
-              this.ticks[counter * 30] = "";
+              this.ticks[index * 30] = "";
             }
-            counter += 1;
           });
         }
       }
+      console.log(this.data);
       if (this.granularity === "hour") {
+        this.steps = 24
         const uniqueMonths = [
-          ...new Set(this.data.map((item) => new Date(item.date).getMonth())),
-        ];
-        console.log(uniqueMonths);
-        const uniqueDays = [
           ...new Set(
-            this.data.map((item) => new Date(item.date).getDate())
+            this.data.map((item) =>
+              new Date(item.date).toLocaleString("default", { month: "long" })
+            )
           ),
         ];
-        var counter = 0;
-        for (let index = 0; index < uniqueMonths.length; index++) {
-          uniqueMonths.forEach((val) => {
-            this.ticks[counter * 30] = uniqueMonths[index];
-            this.ticks[counter] = "";
-            counter += 1;
-          });
-        }
-
+        uniqueMonths.forEach((val, index) => {
+          this.ticks[index * 30 * 24] = uniqueMonths[index];
+        });
       }
     },
   },
