@@ -41,5 +41,5 @@ jobs:
     needs: build
     runs-on: ubuntu-latest
     steps:
-      - run: cd /var/www/html/frontend/vue_frontend && npm run build
+      - run: cd /var/www/html/frontend && npm run build
 
