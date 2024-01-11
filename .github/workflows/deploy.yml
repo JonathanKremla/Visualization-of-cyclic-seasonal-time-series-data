@@ -41,5 +41,4 @@ jobs:
     needs: build
     runs-on: ubuntu-latest
     steps:
-      - run: cd /var/www/html && npm run build
-
+      - run: ls /var/www/html 
