@@ -37,4 +37,8 @@ jobs:
         remote_host: 45.141.37.96
         remote_user: github
         remote_key: ${{ secrets.DEPLOY_KEY }}
-    - run: cd /var/www/html/frontend/vue_frontend && npm run build
+  post:
+    runs-on: ubuntu-latest
+    steps:
+      -run: cd /var/www/html/frontend/vue_frontend && npm run build
+
