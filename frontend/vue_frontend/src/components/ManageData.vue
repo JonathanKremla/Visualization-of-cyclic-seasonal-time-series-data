@@ -1,5 +1,6 @@
 <template>
-  <div>
+  <div>o
+	  <h2>SANITY</h2>
     <h2>Choose data set:</h2>
     <div>
       <v-btn-toggle v-model="chosenDataSet">
