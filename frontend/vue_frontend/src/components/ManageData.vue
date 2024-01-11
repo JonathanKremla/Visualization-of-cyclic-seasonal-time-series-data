@@ -41,7 +41,16 @@ export default {
   },
   methods: {
     getMessage(id) {
-      const path = `http://localhost:8080/sample/sampleData${id}`;
+      var address = ""
+      if (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1") {
+        address = "localhost:8080";
+      } else {
+        address = "http://lavender-swan-81598.zap.cloud";
+      }
+      console.log(window.location.host)
+
+
+      const path = `http://${address}/sample/sampleData${id}`;
       axios
         .get(path)
         .then((res) => {
