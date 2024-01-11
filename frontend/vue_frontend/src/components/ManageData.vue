@@ -45,7 +45,7 @@ export default {
       if (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1") {
         address = "localhost:8080";
       } else {
-        address = "http://lavender-swan-81598.zap.cloud";
+        address = "lavender-swan-81598.zap.cloud";
       }
       console.log(window.location.host)
 
