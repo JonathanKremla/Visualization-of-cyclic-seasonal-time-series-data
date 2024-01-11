@@ -35,7 +35,6 @@ export default {
     sendUpdatedRange() {
       this.$emit("updatedRange", this.displayedRange);
     },
-    //TODO: Calculate ticks for finer granularity
     calculateTicks() {
       if (this.granularity === "day") {
         this.steps=30;
@@ -48,15 +47,17 @@ export default {
             this.data.map((item) => new Date(item.date).getFullYear())
           ),
         ];
-        for (let index = 0; index < uniqueYears.length; index++) {
-          uniqueMonths.forEach((val) => {
-            if (val === 0) {
-              this.ticks[index * 30] = uniqueYears[index];
-            } else {
-              this.ticks[index * 30] = "";
-            }
-          });
-        }
+      var counter = 0;
+      for (let index = 0; index < uniqueYears.length; index++) {
+        uniqueMonths.forEach((val) => {
+          if (val === 0) {
+            this.ticks[counter * 30] = uniqueYears[index];
+          } else {
+            this.ticks[counter * 30] = "";
+          }
+          counter += 1;
+        });
+      }
       }
       console.log(this.data);
       if (this.granularity === "hour") {

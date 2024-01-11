@@ -7,7 +7,7 @@
     v-if="this.dataSize"
     :data="this.data"
     :max="this.dataSize"
-    :granularity = "this.granularity"
+    :granularity="this.granularity"
     v-on:updatedRange="updateRange"
     ></CustomRangeSlider>
     <h2>Line Plot</h2>
@@ -71,11 +71,9 @@ export default {
     this.cycles = this.displayedData / this.segmentsPerCycle;
     this.retrieveData();
     this.checkGranularity();
-    this.calculateTicks();
   },
   methods: {
     checkGranularity(){
-      var entriesPerDay = 0;
       var days = [];
       this.data.forEach((el) => {
         var day = new Date(el.date).getDate();
@@ -148,25 +146,6 @@ export default {
         this.displayedRange = [0, this.dataSize];
       } catch (error) {
         console.error("Error retrieving data from local storage:", error);
-      }
-    },
-    calculateTicks() {
-      const uniqueMonths = [
-        ...new Set(this.data.map((item) => new Date(item.date).getMonth())),
-      ];
-      const uniqueYears = [
-        ...new Set(this.data.map((item) => new Date(item.date).getFullYear())),
-      ];
-      var counter = 0;
-      for (let index = 0; index < uniqueYears.length; index++) {
-        uniqueMonths.forEach((val) => {
-          if (val === 0) {
-            this.ticks[counter * 30] = uniqueYears[index];
-          } else {
-            this.ticks[counter * 30] = "";
-          }
-          counter += 1;
-        });
       }
     },
   },

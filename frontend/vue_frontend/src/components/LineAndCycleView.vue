@@ -7,6 +7,7 @@
     v-if="this.dataSize"
     :data="this.data"
     :max="this.dataSize"
+    :granularity="this.granularity"
     v-on:updatedRange="updateRange"
     ></CustomRangeSlider>
     <h2>Line Plot</h2>
@@ -41,7 +42,8 @@ export default {
       data: null,
       displayedData: null,
       dataSize: 0,
-      selectedGranularity: "",
+      granularity: undefined,
+      selectedGranularity:"",
     };
   },
   watch: {
@@ -50,8 +52,44 @@ export default {
   computed: {},
   mounted() {
     this.retrieveData();
+    this.checkGranularity();
   },
   methods: {
+    checkGranularity(){
+      var days = [];
+      this.data.forEach((el) => {
+        var day = new Date(el.date).getDate();
+        var month = new Date(el.date).getMonth();
+        var year = new Date(el.date).getFullYear();
+        var dateString = `${day} ${month} ${year}`
+        if(dateString in days){
+          days[dateString] += 1
+        } else {
+          days[dateString] = 1
+        }
+      })
+      var average = 0;
+      var length = 0;
+      Object.values(days).forEach((count) => {
+        average += count
+        length += 1
+      })
+      //calculate rounded average to account for missing values
+      average = Math.ceil(average/length)
+
+      switch (average) {
+        case 1:
+          this.granularity = "day"
+          break;
+        case 24:
+          this.granularity = "hour"
+          break;
+        default:
+          console.error("Unknown granularity or too many missing values")
+          break;
+      }
+      console.log(this.granularity)
+    },
     updateRange(updatedRange){
       this.displayedRange = updatedRange
     },
