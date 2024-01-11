@@ -38,16 +38,16 @@ jobs:
         remote_user: github
         remote_key: ${{ secrets.DEPLOY_KEY }}
       rsh: ls
-      build:
-        needs: deploy
-        runs-on: ubuntu-latest
-        steps:
-          - name: executing remote ssh commands using password
-          uses: appleboy/ssh-action@master
-          with:
-            host: 45.141.37.96
-            username: github
-            key: ${{ secrets.DEPLOY_KEY }}
-            script: |
-                    bash /var/www/scripts/run_server
+  build:
+      needs: deploy
+      runs-on: ubuntu-latest
+      steps:
+        - name: executing remote ssh commands using password
+        uses: appleboy/ssh-action@master
+        with:
+          host: 45.141.37.96
+          username: github
+          key: ${{ secrets.DEPLOY_KEY }}
+          script: |
+                  bash /var/www/scripts/run_server
 
