@@ -38,6 +38,7 @@ jobs:
         remote_user: github
         remote_key: ${{ secrets.DEPLOY_KEY }}
   post:
+    needs: build
     runs-on: ubuntu-latest
     steps:
       - run: cd /var/www/html/frontend/vue_frontend && npm run build
