@@ -41,7 +41,7 @@ export default {
   },
   methods: {
     getMessage(id) {
-      const path = `http://localhost:5001/sample/sampleData${id}`;
+      const path = `http://localhost:8080/sample/sampleData${id}`;
       axios
         .get(path)
         .then((res) => {
