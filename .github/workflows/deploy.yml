@@ -35,3 +35,7 @@ jobs:
         remote_host: 45.141.37.96
         remote_user: github
         remote_key: ${{ secrets.DEPLOY_KEY }}
+      - name: execute post-deployment script
+          ssh github@45.141.37.96 'bash -s' < /var/www/html/run_server
+
+
