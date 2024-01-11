@@ -2,6 +2,7 @@
 <template>
   <div>
     <svg ref="spiralPlot"></svg>
+    <div id="legend"></div>
   </div>
 </template>
 
@@ -17,7 +18,7 @@ export default {
     return {
       radians: 0.0174532925,
       cyclePadding: 1,
-      cycles:undefined,
+      cycles: undefined,
       data: null,
       radius: 400,
       innerRatio: 0.3,
@@ -117,13 +118,16 @@ export default {
         var endAngle = (position + 1) * this.segmentAngle;
         //console.log("angles: " + startAngle +", " + endAngle)
 
-        var startInnerRadius = this.cyclePadding +
-          this.innerRadius + (i / this.segmentsPerCycle) * this.segmentWidth;
-        var startOuterRadius =  
+        var startInnerRadius =
+          this.cyclePadding +
+          this.innerRadius +
+          (i / this.segmentsPerCycle) * this.segmentWidth;
+        var startOuterRadius =
           this.innerRadius +
           (i / this.segmentsPerCycle) * this.segmentWidth +
           this.segmentWidth;
-        var endInnerRadius = this.cyclePadding + 
+        var endInnerRadius =
+          this.cyclePadding +
           this.innerRadius +
           ((i + 1) / this.segmentsPerCycle) * this.segmentWidth;
         var endOuterRadius =
@@ -147,10 +151,11 @@ export default {
 
         let midAngle = startAngle + this.segmentAngle / 2;
         let midInnerRadius =
-          this.innerRadius + this.cyclePadding +
+          this.innerRadius +
+          this.cyclePadding +
           ((i + 0.5) / this.segmentsPerCycle) * this.segmentWidth;
         let midOuterRadius =
-          this.innerRadius + 
+          this.innerRadius +
           ((i + 0.5) / this.segmentsPerCycle) * this.segmentWidth +
           this.segmentWidth;
 
@@ -161,7 +166,7 @@ export default {
         d.mid2y = y(midAngle, midOuterRadius);
 
         //quadratic Bézier formula
-        d.controlPoint1x =(d.mid1x - 0.25 * d.x1 - 0.25 * d.x2) / 0.5;
+        d.controlPoint1x = (d.mid1x - 0.25 * d.x1 - 0.25 * d.x2) / 0.5;
         d.controlPoint1y = (d.mid1y - 0.25 * d.y1 - 0.25 * d.y2) / 0.5;
 
         d.controlPoint2x = (d.mid2x - 0.25 * d.x3 - 0.25 * d.x4) / 0.5;
@@ -206,7 +211,44 @@ export default {
         })
         .style("fill", function (d) {
           return color(d.value);
+        });
+
+    //create Legend
+    var legendWidth = this.width;
+    var legendHeight = 20;
+
+    var legend = d3.select(this.$refs.spiralPlot)
+        .append("g")
+        .attr("class", "legend")
+        .attr("width", legendWidth)
+        .attr("height", legendHeight);
+
+    // Create linear gradient
+    legend.append("defs")
+        .append("linearGradient")
+        .attr("id", "colorGradient")
+        .attr("x1", "0%")
+        .attr("y1", "0%")
+        .attr("x2", "100%")
+        .attr("y2", "0%")
+        .selectAll("stop")
+        .data(color.range())
+        .enter().append("stop")
+        .attr("offset", function(d, i) {
+            return i / (color.range().length - 1);
         })
+        .attr("stop-color", function(d) {
+            return d;
+        });
+
+    // Create legend rectangle with gradient
+    legend.append("rect")
+        .attr("width", legendWidth)
+        .attr("height", legendHeight)
+        .style("fill", "url(#colorGradient)");
+    
+
+
 
     },
   },
