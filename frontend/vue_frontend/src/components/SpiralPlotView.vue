@@ -1,17 +1,36 @@
 <template>
   <div>
-    <v-select
-      label="Select color scheme"
-      :items="[
-        'Cividis',
-        'Viridis',
-        'Inferno',
-        'Magma',
-        'Plasma',
-        'Warm',
-      ]"
-      v-model="this.colorScheme"
-    ></v-select>
+    <h3>Options:</h3>
+    <div>
+      <v-card flat>
+        <v-card-text>
+          <v-container fluid>
+            <v-row>
+              <v-col cols="12" sm="4" md="4">
+                <v-switch
+                  label="Highlight first day of each Year"
+                  v-model="yearHighlight"
+                  color="primary"
+                ></v-switch>
+                <v-switch
+                  label="Display text for year"
+                  v-model="yearText"
+                  color="primary"
+                ></v-switch>
+              </v-col>
+              <v-col>
+                <v-select
+                  label="Select color scheme"
+                  :items="['Cividis', 'Viridis', 'Inferno', 'Magma', 'Plasma']"
+                  v-model="this.colorScheme"
+                ></v-select>
+              </v-col>
+              <v-col> </v-col>
+            </v-row>
+          </v-container>
+        </v-card-text>
+      </v-card>
+    </div>
     <svg ref="spiralPlot"></svg>
     <div id="legend"></div>
   </div>
@@ -23,16 +42,18 @@ import * as d3 from "d3";
 export default {
   props: {
     displayedData: Object,
-    segmentsPerCycle: Number,
+    segmentsPerCycle: String | Number,
   },
   data() {
     return {
+      yearHighlight: false,
+      yearText: true,
       radians: 0.0174532925,
-      colorScheme: 'Viridis',
+      colorScheme: "Cividis",
       cyclePadding: 1,
       cycles: undefined,
       data: null,
-      radius: 400,
+      radius: 500,
       innerRatio: 0.3,
       width: 1000,
       height: 1000,
@@ -45,6 +66,8 @@ export default {
     };
   },
   watch: {
+    yearText: "prepareData",
+    yearHighlight: "prepareData",
     displayedData: "prepareData",
     segmentsPerCycle: "prepareData",
     cycles: "prepareData",
@@ -73,8 +96,6 @@ export default {
           value: value,
         };
       });
-      this.d;
-
       this.data.sort(function (a, b) {
         return a.year - b.year || a.month - b.month;
       });
@@ -197,9 +218,7 @@ export default {
       arcs
         .append("path")
         .attr("d", function (d) {
-          //start at vertice 1
           let start = "M " + d.x1 + " " + d.y1;
-          //inner curve to vertice 2
           let side1 =
             " Q " +
             d.controlPoint1x +
@@ -209,9 +228,7 @@ export default {
             d.x2 +
             " " +
             d.y2;
-          //straight line to vertice 3
           let side2 = "L " + d.x3 + " " + d.y3;
-          //outer curve vertice 4
           let side3 =
             " Q " +
             d.controlPoint2x +
@@ -221,12 +238,67 @@ export default {
             d.x4 +
             " " +
             d.y4;
-          //combine into string, with closure (Z) to vertice 1
           return start + " " + side1 + " " + side2 + " " + side3 + " Z";
         })
         .style("fill", function (d) {
           return color(d.value);
         });
+
+      var yearStarts = arcs
+        .filter(function (d) {
+          return d.month == 1 && d.day == 1;
+        })
+        .raise();
+
+      if (this.yearHighlight) {
+        yearStarts
+          .append("path")
+          .attr("d", function (d) {
+            let start = "M " + d.x1 + " " + d.y1;
+            let side1 =
+              " Q " +
+              d.controlPoint1x +
+              " " +
+              d.controlPoint1y +
+              " " +
+              d.x2 +
+              " " +
+              d.y2;
+            let side2 = "L " + d.x3 + " " + d.y3;
+            let side3 =
+              " Q " +
+              d.controlPoint2x +
+              " " +
+              d.controlPoint2y +
+              " " +
+              d.x4 +
+              " " +
+              d.y4;
+            return start + " " + side1 + " " + side2 + " " + side3 + " Z";
+          })
+          .style(
+            "stroke",
+            this.colorScheme == "Cividis" || this.colorScheme == "Viridis"
+              ? "red"
+              : "green"
+          )
+          .style("fill", "none")
+          .style("stroke-width", 2);
+      }
+
+      if (this.yearText) {
+        yearStarts
+          .append("text")
+          .attr("x", function (d) {
+            return d.x1;
+          })
+          .attr("y", function (d) {
+            return d.y1;
+          })
+          .text(function (d) {
+            return d.year;
+          });
+      }
 
       //create Legend
       var legendWidth = this.width / 2;
@@ -243,7 +315,6 @@ export default {
       for (let index = dataExtent[0]; index < dataExtent[1]; index++) {
         colorRange.push(color(index));
       }
-      console.log(colorRange);
 
       // Create linear gradient
       legend

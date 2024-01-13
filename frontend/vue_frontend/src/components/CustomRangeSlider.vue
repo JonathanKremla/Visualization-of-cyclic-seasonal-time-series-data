@@ -41,7 +41,6 @@ export default {
         const uniqueMonths = [
           ...new Set(this.data.map((item) => new Date(item.date).getMonth())),
         ];
-        console.log(uniqueMonths);
         const uniqueYears = [
           ...new Set(
             this.data.map((item) => new Date(item.date).getFullYear())
@@ -59,7 +58,6 @@ export default {
         });
       }
       }
-      console.log(this.data);
       if (this.granularity === "hour") {
         this.steps = 24
         const uniqueMonths = [

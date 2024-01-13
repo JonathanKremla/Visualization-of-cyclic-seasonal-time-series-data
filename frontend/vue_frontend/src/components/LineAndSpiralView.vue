@@ -56,7 +56,7 @@ export default {
     return {
       ticks: {},
       displayedRange: [0, 0],
-      segmentsPerCycle: 365,
+      segmentsPerCycle: "365",
       data: null,
       displayedData: null,
       dataSize: 0,
@@ -106,7 +106,6 @@ export default {
           console.error("Unknown granularity or too many missing values")
           break;
       }
-      console.log(this.granularity)
 
 
     },
@@ -119,7 +118,7 @@ export default {
         // Set a new timeout to debounce the watcher function after 300 milliseconds of inactivity
         this.watcherTimeout = setTimeout(() => {
           this.displayedData = this.data.slice(
-            this.displayedRange[0],
+            this.displayedRange[0]-1,
             this.displayedRange[1]
           );
         }, 100);
