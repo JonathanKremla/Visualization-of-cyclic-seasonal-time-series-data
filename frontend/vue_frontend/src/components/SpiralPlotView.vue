@@ -1,4 +1,3 @@
-
 <template>
   <div>
     <svg ref="spiralPlot"></svg>
@@ -6,7 +5,7 @@
   </div>
 </template>
 
-<script >
+<script>
 import * as d3 from "d3";
 
 export default {
@@ -213,18 +212,26 @@ export default {
           return color(d.value);
         });
 
-    //create Legend
-    var legendWidth = this.width;
-    var legendHeight = 20;
+      //create Legend
+      var legendWidth = this.width / 2;
+      var legendHeight = 20;
 
-    var legend = d3.select(this.$refs.spiralPlot)
+      var legend = d3
+        .select(this.$refs.spiralPlot)
         .append("g")
         .attr("class", "legend")
         .attr("width", legendWidth)
         .attr("height", legendHeight);
 
-    // Create linear gradient
-    legend.append("defs")
+      var colorRange = [];
+      for (let index = dataExtent[0]; index < dataExtent[1]; index++) {
+        colorRange.push(color(index));
+      }
+      console.log(colorRange);
+
+      // Create linear gradient
+      legend
+        .append("defs")
         .append("linearGradient")
         .attr("id", "colorGradient")
         .attr("x1", "0%")
@@ -232,24 +239,58 @@ export default {
         .attr("x2", "100%")
         .attr("y2", "0%")
         .selectAll("stop")
-        .data(color.range())
-        .enter().append("stop")
-        .attr("offset", function(d, i) {
-            return i / (color.range().length - 1);
+        .data(colorRange)
+        .enter()
+        .append("stop")
+        .attr("offset", function (d, i) {
+          return i / (colorRange.length - 1);
         })
-        .attr("stop-color", function(d) {
-            return d;
+        .attr("stop-color", function (d) {
+          return d;
         });
 
-    // Create legend rectangle with gradient
-    legend.append("rect")
+      // Create legend rectangle with gradient
+      legend
+        .append("rect")
         .attr("width", legendWidth)
         .attr("height", legendHeight)
         .style("fill", "url(#colorGradient)");
-    
 
+      var tickValues = d3.range(dataExtent[0], dataExtent[1] + 1, 10);
+      var tickScale = d3
+        .scaleLinear()
+        .domain(dataExtent)
+        .range([0, legendWidth]);
 
+      legend
+        .selectAll(".tick")
+        .data(tickValues)
+        .enter()
+        .append("line")
+        .attr("class", "tick")
+        .attr("x1", function (d) {
+          return tickScale(d);
+        })
+        .attr("x2", function (d) {
+          return tickScale(d);
+        })
+        .attr("y1", 0)
+        .attr("y2", legendHeight + 5);
 
+      // Add tick labels
+      legend
+        .selectAll(".tick-label")
+        .data(tickValues)
+        .enter()
+        .append("text")
+        .attr("class", "tick-label")
+        .attr("x", function (d) {
+          return tickScale(d);
+        })
+        .attr("y", legendHeight + 15)
+        .text(function (d) {
+          return Math.round(d); // Display tick values as labels
+        });
     },
   },
 };
