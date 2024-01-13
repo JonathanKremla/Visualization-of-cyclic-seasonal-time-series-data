@@ -1,5 +1,17 @@
 <template>
   <div>
+    <v-select
+      label="Select color scheme"
+      :items="[
+        'Cividis',
+        'Viridis',
+        'Inferno',
+        'Magma',
+        'Plasma',
+        'Warm',
+      ]"
+      v-model="this.colorScheme"
+    ></v-select>
     <svg ref="spiralPlot"></svg>
     <div id="legend"></div>
   </div>
@@ -16,6 +28,7 @@ export default {
   data() {
     return {
       radians: 0.0174532925,
+      colorScheme: 'Viridis',
       cyclePadding: 1,
       cycles: undefined,
       data: null,
@@ -35,6 +48,7 @@ export default {
     displayedData: "prepareData",
     segmentsPerCycle: "prepareData",
     cycles: "prepareData",
+    colorScheme: "prepareData",
   },
   methods: {
     prepareData() {
@@ -69,7 +83,9 @@ export default {
 
     renderGraph() {
       d3.select(this.$refs.spiralPlot).selectAll("*").remove();
-      var color = d3.scaleSequential(d3.interpolateViridis);
+      //var color = d3.scaleSequential(d3.interpolateViridis);
+      var c = `d3.interpolate${this.colorScheme}`;
+      var color = d3.scaleSequential(eval(c));
       var radians = this.radians;
       const svg = d3
         .select(this.$refs.spiralPlot)
