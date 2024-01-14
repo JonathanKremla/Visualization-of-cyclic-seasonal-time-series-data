@@ -159,7 +159,7 @@ export default {
     setGranularities() {
       switch (this.baseGranularity) {
         case "Hours":
-          this.options.granularityItems.pop()
+          this.options.granularityItems.pop();
           break;
         case "Days":
           this.options.granularityItems.shift();
@@ -335,7 +335,10 @@ export default {
 
       var monthStarts = arcs
         .filter(function (d) {
-          return d.day == 1 && d.hour == 0;
+          if (this.baseGranularity == "Hours") {
+            return d.day == 1 && d.hour == 0;
+          }
+          return d.day==1;
         })
         .raise();
       if (this.options.monthHighlight) {
@@ -387,10 +390,10 @@ export default {
           })
           .text(function (d) {
             if (!(d.month == 1 && yearTextDisplayed)) {
-              return months[d.month];
+              return months[d.month-1];
             }
           })
-          .style("font-size", "20px")
+          .style("font-size", "15px")
           .style(
             "fill",
             this.options.colorScheme == "Cividis" ||
@@ -398,7 +401,6 @@ export default {
               ? "red"
               : "green"
           );
-          
       }
     },
 
@@ -448,8 +450,6 @@ export default {
           .style("stroke-width", 2);
       }
     },
-
-    renderYearText() {},
 
     renderGraph() {
       d3.select(this.$refs.spiralPlot).selectAll("*").remove();

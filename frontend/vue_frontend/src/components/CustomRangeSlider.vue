@@ -36,7 +36,7 @@ export default {
       this.$emit("updatedRange", this.displayedRange);
     },
     calculateTicks() {
-      if (this.granularity === "day") {
+      if (this.granularity === "Days") {
         this.steps=30;
         const uniqueMonths = [
           ...new Set(this.data.map((item) => new Date(item.date).getMonth())),
@@ -58,7 +58,7 @@ export default {
         });
       }
       }
-      if (this.granularity === "hour") {
+      if (this.granularity === "Hours") {
         this.steps = 24
         const uniqueMonths = [
           ...new Set(
