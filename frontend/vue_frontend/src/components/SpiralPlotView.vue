@@ -33,15 +33,45 @@
         <v-card-text>
           <v-container fluid>
             <v-row>
-              <v-col cols="12" sm="4" md="4">
+              <v-col>
                 <v-switch
                   label="Highlight start of each year"
                   v-model="this.options.yearHighlight"
+                  :disabled="
+                    this.options.granularity == 'Hours' ||
+                    this.baseGranularity == 'Hours'
+                  "
                   color="primary"
                 ></v-switch>
                 <v-switch
                   label="Display text for year"
                   v-model="this.options.yearText"
+                  :disabled="
+                    this.options.granularity == 'Hours' ||
+                    this.baseGranularity == 'Hours'
+                  "
+                  color="primary"
+                ></v-switch>
+              </v-col>
+              <v-col>
+                <v-switch
+                  label="Highlight start of each month"
+                  v-model="this.options.monthHighlight"
+                  :disabled="this.options.granularity == 'Months'"
+                  color="primary"
+                ></v-switch>
+                <v-switch
+                  label="Display text for month"
+                  v-model="this.options.monthText"
+                  :disabled="this.options.granularity == 'Months'"
+                  color="primary"
+                ></v-switch>
+              </v-col>
+              <v-col>
+                <v-switch
+                  label="Highlight start of each day"
+                  v-model="this.options.dayHighlight"
+                  :disabled="this.options.granularity != 'Hours'"
                   color="primary"
                 ></v-switch>
               </v-col>
@@ -53,13 +83,10 @@
                 ></v-select>
                 <v-select
                   label="Select granularity"
-                  item-text="text"
-                  item-disabled="disable"
                   :items="this.options.granularityItems"
                   v-model="this.options.granularity"
                 ></v-select>
               </v-col>
-              <v-col> </v-col>
             </v-row>
           </v-container>
         </v-card-text>
@@ -82,6 +109,10 @@ export default {
     return {
       options: {
         yearHighlight: false,
+        yearText: true,
+        monthHighlight: false,
+        monthText: true,
+        dayHighlight: false,
         granularity: undefined,
         yearText: true,
         granularityItems: ["Hours", "Days", "Months"],
@@ -128,6 +159,7 @@ export default {
     setGranularities() {
       switch (this.baseGranularity) {
         case "Hours":
+          this.options.granularityItems.pop()
           break;
         case "Days":
           this.options.granularityItems.shift();
@@ -191,9 +223,6 @@ export default {
 
     prepareData() {
       const aggregatedData = this.aggregateData();
-      console.log(this.segmentsPerCycle);
-      console.log(this.defaults.days);
-      console.log(this.granularity);
       if (
         (this.segmentsPerCycle == this.defaults.hour &&
           this.options.granularity == "Hours") ||
@@ -217,11 +246,13 @@ export default {
         const year = parsedDate.getFullYear();
         const month = parsedDate.getMonth() + 1; // Months are zero-based, so we add 1
         const day = parsedDate.getDate();
+        const hour = parsedDate.getHours();
 
         return {
           year: year,
           month: month,
           day: day,
+          hour: hour,
           value: value,
         };
       });
@@ -230,6 +261,195 @@ export default {
       });
       this.renderGraph();
     },
+
+    renderYearHighlights() {
+      var arcs = d3.selectAll(".arc");
+
+      var yearStarts = arcs
+        .filter(function (d) {
+          return d.month == 1 && d.day == 1;
+        })
+        .raise();
+      if (this.options.yearHighlight) {
+        yearStarts
+          .append("path")
+          .attr("d", function (d) {
+            let start = "M " + d.x1 + " " + d.y1;
+            let side1 =
+              " Q " +
+              d.controlPoint1x +
+              " " +
+              d.controlPoint1y +
+              " " +
+              d.x2 +
+              " " +
+              d.y2;
+            let side2 = "L " + d.x3 + " " + d.y3;
+            let side3 =
+              " Q " +
+              d.controlPoint2x +
+              " " +
+              d.controlPoint2y +
+              " " +
+              d.x4 +
+              " " +
+              d.y4;
+            return start + " " + side1 + " " + side2 + " " + side3 + " Z";
+          })
+          .style(
+            "stroke",
+            this.options.colorScheme == "Cividis" ||
+              this.options.colorScheme == "Viridis"
+              ? "red"
+              : "green"
+          )
+          .style("fill", "none")
+          .style("stroke-width", 2);
+      }
+
+      if (this.options.yearText) {
+        yearStarts
+          .append("text")
+          .attr("x", function (d) {
+            return d.x1;
+          })
+          .attr("y", function (d) {
+            return d.y1;
+          })
+          .text(function (d) {
+            return d.year;
+          })
+          .style("font-size", "20px")
+          .style(
+            "fill",
+            this.options.colorScheme == "Cividis" ||
+              this.options.colorScheme == "Viridis"
+              ? "red"
+              : "green"
+          );
+      }
+    },
+
+    renderMonthHighlights() {
+      var arcs = d3.selectAll(".arc");
+
+      var monthStarts = arcs
+        .filter(function (d) {
+          return d.day == 1 && d.hour == 0;
+        })
+        .raise();
+      if (this.options.monthHighlight) {
+        monthStarts
+          .append("path")
+          .attr("d", function (d) {
+            let start = "M " + d.x1 + " " + d.y1;
+            let side1 =
+              " Q " +
+              d.controlPoint1x +
+              " " +
+              d.controlPoint1y +
+              " " +
+              d.x2 +
+              " " +
+              d.y2;
+            let side2 = "L " + d.x3 + " " + d.y3;
+            let side3 =
+              " Q " +
+              d.controlPoint2x +
+              " " +
+              d.controlPoint2y +
+              " " +
+              d.x4 +
+              " " +
+              d.y4;
+            return start + " " + side1 + " " + side2 + " " + side3 + " Z";
+          })
+          .style(
+            "stroke",
+            this.options.colorScheme == "Cividis" ||
+              this.options.colorScheme == "Viridis"
+              ? "red"
+              : "green"
+          )
+          .style("fill", "none")
+          .style("stroke-width", 2);
+      }
+
+      if (this.options.monthText) {
+        var yearTextDisplayed = this.options.yearText;
+        monthStarts
+          .append("text")
+          .attr("x", function (d) {
+            return d.x1;
+          })
+          .attr("y", function (d) {
+            return d.y1;
+          })
+          .text(function (d) {
+            if (!(d.month == 1 && yearTextDisplayed)) {
+              return months[d.month];
+            }
+          })
+          .style("font-size", "20px")
+          .style(
+            "fill",
+            this.options.colorScheme == "Cividis" ||
+              this.options.colorScheme == "Viridis"
+              ? "red"
+              : "green"
+          );
+          
+      }
+    },
+
+    renderDayHighlights() {
+      var arcs = d3.selectAll(".arc");
+
+      var dayStarts = arcs
+        .filter(function (d) {
+          return d.hour == 0;
+        })
+        .raise();
+
+      if (this.options.dayHighlight) {
+        dayStarts
+          .append("path")
+          .attr("d", function (d) {
+            let start = "M " + d.x1 + " " + d.y1;
+            let side1 =
+              " Q " +
+              d.controlPoint1x +
+              " " +
+              d.controlPoint1y +
+              " " +
+              d.x2 +
+              " " +
+              d.y2;
+            let side2 = "L " + d.x3 + " " + d.y3;
+            let side3 =
+              " Q " +
+              d.controlPoint2x +
+              " " +
+              d.controlPoint2y +
+              " " +
+              d.x4 +
+              " " +
+              d.y4;
+            return start + " " + side1 + " " + side2 + " " + side3 + " Z";
+          })
+          .style(
+            "stroke",
+            this.options.colorScheme == "Cividis" ||
+              this.options.colorScheme == "Viridis"
+              ? "red"
+              : "green"
+          )
+          .style("fill", "none")
+          .style("stroke-width", 2);
+      }
+    },
+
+    renderYearText() {},
 
     renderGraph() {
       d3.select(this.$refs.spiralPlot).selectAll("*").remove();
@@ -378,56 +598,9 @@ export default {
         })
         .raise();
 
-      if (this.options.yearHighlight) {
-        yearStarts
-          .append("path")
-          .attr("d", function (d) {
-            let start = "M " + d.x1 + " " + d.y1;
-            let side1 =
-              " Q " +
-              d.controlPoint1x +
-              " " +
-              d.controlPoint1y +
-              " " +
-              d.x2 +
-              " " +
-              d.y2;
-            let side2 = "L " + d.x3 + " " + d.y3;
-            let side3 =
-              " Q " +
-              d.controlPoint2x +
-              " " +
-              d.controlPoint2y +
-              " " +
-              d.x4 +
-              " " +
-              d.y4;
-            return start + " " + side1 + " " + side2 + " " + side3 + " Z";
-          })
-          .style(
-            "stroke",
-            this.options.colorScheme == "Cividis" ||
-              this.options.colorScheme == "Viridis"
-              ? "red"
-              : "green"
-          )
-          .style("fill", "none")
-          .style("stroke-width", 2);
-      }
-
-      if (this.options.yearText) {
-        yearStarts
-          .append("text")
-          .attr("x", function (d) {
-            return d.x1;
-          })
-          .attr("y", function (d) {
-            return d.y1;
-          })
-          .text(function (d) {
-            return d.year;
-          });
-      }
+      this.renderYearHighlights();
+      this.renderMonthHighlights();
+      this.renderDayHighlights();
 
       //create Legend
       var legendWidth = this.width / 2;
@@ -510,4 +683,18 @@ export default {
     },
   },
 };
+const months = [
+  "January",
+  "February",
+  "March",
+  "April",
+  "May",
+  "June",
+  "July",
+  "August",
+  "September",
+  "October",
+  "November",
+  "December",
+];
 </script>
