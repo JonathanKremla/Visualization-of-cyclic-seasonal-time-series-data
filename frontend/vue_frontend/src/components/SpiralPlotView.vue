@@ -1,6 +1,33 @@
 <template>
   <div>
     <h3>Options:</h3>
+    <div class="text-caption">Segments per Cycle</div>
+    <v-container>
+      <v-slider
+        aria-label="Segments per Cycle"
+        step="1"
+        v-model="this.segmentsPerCycle"
+        :max="this.displayedData.length"
+        :disabled="this.recommendedSeg"
+        min="1"
+        thumb-label="always"
+      >
+        <template v-slot:append>
+          <v-text-field
+            v-model="this.segmentsPerCycle"
+            hide-details
+            single-line
+            density="compact"
+            type="number"
+            style="width: 100px"
+          ></v-text-field>
+        </template>
+      </v-slider>
+      <v-checkbox
+        label="Use recommended segments per cycle"
+        v-model="this.recommendedSeg"
+      ></v-checkbox>
+    </v-container>
     <div>
       <v-card flat>
         <v-card-text>
@@ -8,13 +35,13 @@
             <v-row>
               <v-col cols="12" sm="4" md="4">
                 <v-switch
-                  label="Highlight first day of each Year"
-                  v-model="yearHighlight"
+                  label="Highlight start of each year"
+                  v-model="this.options.yearHighlight"
                   color="primary"
                 ></v-switch>
                 <v-switch
                   label="Display text for year"
-                  v-model="yearText"
+                  v-model="this.options.yearText"
                   color="primary"
                 ></v-switch>
               </v-col>
@@ -22,7 +49,14 @@
                 <v-select
                   label="Select color scheme"
                   :items="['Cividis', 'Viridis', 'Inferno', 'Magma', 'Plasma']"
-                  v-model="this.colorScheme"
+                  v-model="this.options.colorScheme"
+                ></v-select>
+                <v-select
+                  label="Select granularity"
+                  item-text="text"
+                  item-disabled="disable"
+                  :items="this.options.granularityItems"
+                  v-model="this.options.granularity"
                 ></v-select>
               </v-col>
               <v-col> </v-col>
@@ -42,14 +76,25 @@ import * as d3 from "d3";
 export default {
   props: {
     displayedData: Object,
-    segmentsPerCycle: String | Number,
+    baseGranularity: String,
   },
   data() {
     return {
-      yearHighlight: false,
-      yearText: true,
+      options: {
+        yearHighlight: false,
+        granularity: undefined,
+        yearText: true,
+        granularityItems: ["Hours", "Days", "Months"],
+        colorScheme: "Cividis",
+      },
+      defaults: {
+        hours: 168,
+        days: 365,
+        months: 12,
+      },
+      recommendedSeg: true,
+      segmentsPerCycle: undefined,
       radians: 0.0174532925,
-      colorScheme: "Cividis",
       cyclePadding: 1,
       cycles: undefined,
       data: null,
@@ -66,24 +111,108 @@ export default {
     };
   },
   watch: {
-    yearText: "prepareData",
-    yearHighlight: "prepareData",
+    options: {
+      handler: "handleOptions",
+      deep: true,
+    },
     displayedData: "prepareData",
     segmentsPerCycle: "prepareData",
     cycles: "prepareData",
-    colorScheme: "prepareData",
+    recommendedSeg: "setDefaultSegmentsPerCycle",
+  },
+  mounted() {
+    this.setGranularities();
+    this.setDefaultSegmentsPerCycle();
   },
   methods: {
+    setGranularities() {
+      switch (this.baseGranularity) {
+        case "Hours":
+          break;
+        case "Days":
+          this.options.granularityItems.shift();
+          break;
+
+        default:
+          break;
+      }
+      this.options.granularity = this.baseGranularity;
+    },
+    handleOptions() {
+      this.setDefaultSegmentsPerCycle();
+      this.prepareData();
+    },
+    setDefaultSegmentsPerCycle() {
+      switch (this.options.granularity) {
+        case "Hours":
+          this.segmentsPerCycle = this.defaults.hours;
+          break;
+        case "Days":
+          this.segmentsPerCycle = this.defaults.days;
+          break;
+        case "Months":
+          this.segmentsPerCycle = this.defaults.months;
+          break;
+        default:
+          break;
+      }
+    },
+    aggregateData() {
+      if (this.options.granularity == this.baseGranularity) {
+        return this.displayedData;
+      }
+      if (this.options.granularity == "Months") {
+        const aggregatedData = [];
+        this.displayedData.forEach((el) => {
+          var month = new Date(el.date).toLocaleDateString("default", {
+            month: "short",
+            year: "numeric",
+          });
+          if (!aggregatedData[month]) {
+            // If not, initialize it with the current value
+            aggregatedData[month] = {
+              date: el.date,
+              value: el.value,
+              count: 1,
+            };
+          } else {
+            // If it exists, add the current value to the existing value
+            aggregatedData[month].value += el.value;
+            aggregatedData[month].count += 1;
+          }
+        });
+        Object.values(aggregatedData).forEach((val) => {
+          val.value = val.value / val.count;
+        });
+        return Object.values(aggregatedData);
+      }
+      return this.displayedData;
+    },
+
     prepareData() {
+      const aggregatedData = this.aggregateData();
+      console.log(this.segmentsPerCycle);
+      console.log(this.defaults.days);
+      console.log(this.granularity);
+      if (
+        (this.segmentsPerCycle == this.defaults.hour &&
+          this.options.granularity == "Hours") ||
+        (this.segmentsPerCycle == this.defaults.days &&
+          this.options.granularity == "Days") ||
+        (this.segmentsPerCycle == this.defaults.month &&
+          this.options.granularity == "Months")
+      ) {
+        this.recommendedSeg = true;
+      } else {
+        this.recommendedSeg = false;
+      }
       this.innerRadius = this.radius * this.innerRatio;
       this.segmentAngle = 360 / this.segmentsPerCycle;
-      this.cycles = Math.ceil(
-        this.displayedData.length / this.segmentsPerCycle
-      );
+      this.cycles = Math.ceil(aggregatedData.length / this.segmentsPerCycle);
       this.segmentWidth =
         (this.radius * (1 - this.innerRatio)) / (this.cycles + 1);
-      this.data = this.displayedData.map((entry) => {
-        const { date, value } = entry;
+      this.data = aggregatedData.map((entry) => {
+        const { date, value, count } = entry;
         const parsedDate = new Date(date);
         const year = parsedDate.getFullYear();
         const month = parsedDate.getMonth() + 1; // Months are zero-based, so we add 1
@@ -104,8 +233,7 @@ export default {
 
     renderGraph() {
       d3.select(this.$refs.spiralPlot).selectAll("*").remove();
-      //var color = d3.scaleSequential(d3.interpolateViridis);
-      var c = `d3.interpolate${this.colorScheme}`;
+      var c = `d3.interpolate${this.options.colorScheme}`;
       var color = d3.scaleSequential(eval(c));
       var radians = this.radians;
       const svg = d3
@@ -250,7 +378,7 @@ export default {
         })
         .raise();
 
-      if (this.yearHighlight) {
+      if (this.options.yearHighlight) {
         yearStarts
           .append("path")
           .attr("d", function (d) {
@@ -278,7 +406,8 @@ export default {
           })
           .style(
             "stroke",
-            this.colorScheme == "Cividis" || this.colorScheme == "Viridis"
+            this.options.colorScheme == "Cividis" ||
+              this.options.colorScheme == "Viridis"
               ? "red"
               : "green"
           )
@@ -286,7 +415,7 @@ export default {
           .style("stroke-width", 2);
       }
 
-      if (this.yearText) {
+      if (this.options.yearText) {
         yearStarts
           .append("text")
           .attr("x", function (d) {
