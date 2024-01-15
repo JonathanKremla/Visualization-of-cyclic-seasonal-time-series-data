@@ -102,7 +102,7 @@ export default {
             this.displayedRange[0],
             this.displayedRange[1]
           );
-        }, 100);
+        }, 300);
       }
     },
     retrieveData() {

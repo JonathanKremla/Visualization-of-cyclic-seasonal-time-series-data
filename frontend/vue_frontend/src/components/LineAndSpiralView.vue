@@ -99,7 +99,7 @@ export default {
             this.displayedRange[0]-1,
             this.displayedRange[1]
           );
-        }, 100);
+        }, 300);
       }
     },
     retrieveData() {

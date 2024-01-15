@@ -127,7 +127,6 @@ export default {
       segmentsPerCycle: undefined,
       radians: 0.0174532925,
       cyclePadding: 1,
-      cycles: undefined,
       data: null,
       radius: 500,
       innerRatio: 0.3,
@@ -143,12 +142,21 @@ export default {
   },
   watch: {
     options: {
-      handler: "handleOptions",
+      handler(newVal, oldVal) {
+        if (oldVal !== newVal) {
+          this.handleOptions();
+        }
+      },
       deep: true,
     },
     displayedData: "prepareData",
-    segmentsPerCycle: "prepareData",
-    cycles: "prepareData",
+    segmentsPerCycle: {
+      handler(newVal, oldVal) {
+        if (oldVal !== undefined) {
+          this.debounceOnSegmentChange();
+        }
+      },
+    },
     recommendedSeg: "setDefaultSegmentsPerCycle",
   },
   mounted() {
@@ -156,6 +164,14 @@ export default {
     this.setDefaultSegmentsPerCycle();
   },
   methods: {
+    debounceOnSegmentChange() {
+      console.log("Debouncing Segments");
+      clearTimeout(this.watcherTimeout);
+      // Set a new timeout to debounce the watcher function after 300 milliseconds of inactivity
+      this.watcherTimeout = setTimeout(() => {
+        this.prepareData();
+      }, 300);
+    },
     setGranularities() {
       switch (this.baseGranularity) {
         case "Hours":
@@ -171,6 +187,7 @@ export default {
       this.options.granularity = this.baseGranularity;
     },
     handleOptions() {
+      console.log("Handling Options");
       this.setDefaultSegmentsPerCycle();
       this.prepareData();
     },
@@ -218,10 +235,36 @@ export default {
         });
         return Object.values(aggregatedData);
       }
-      return this.displayedData;
+      if (this.options.granularity == "Days") {
+        const aggregatedData = [];
+        this.displayedData.forEach((el) => {
+          var day = new Date(el.date).toLocaleDateString("default", {
+            day: "numeric",
+            month: "short",
+            year: "numeric",
+          });
+          if (!aggregatedData[day]) {
+            // If not, initialize it with the current value
+            aggregatedData[day] = {
+              date: el.date,
+              value: el.value,
+              count: 1,
+            };
+          } else {
+            // If it exists, add the current value to the existing value
+            aggregatedData[day].value += el.value;
+            aggregatedData[day].count += 1;
+          }
+        });
+        Object.values(aggregatedData).forEach((val) => {
+          val.value = val.value / val.count;
+        });
+        return Object.values(aggregatedData);
+      }
     },
 
     prepareData() {
+      console.log("Preparing Data");
       const aggregatedData = this.aggregateData();
       if (
         (this.segmentsPerCycle == this.defaults.hour &&
@@ -237,9 +280,8 @@ export default {
       }
       this.innerRadius = this.radius * this.innerRatio;
       this.segmentAngle = 360 / this.segmentsPerCycle;
-      this.cycles = Math.ceil(aggregatedData.length / this.segmentsPerCycle);
-      this.segmentWidth =
-        (this.radius * (1 - this.innerRatio)) / (this.cycles + 1);
+      var cycles = Math.ceil(aggregatedData.length / this.segmentsPerCycle);
+      this.segmentWidth = (this.radius * (1 - this.innerRatio)) / (cycles + 1);
       this.data = aggregatedData.map((entry) => {
         const { date, value, count } = entry;
         const parsedDate = new Date(date);
@@ -333,12 +375,13 @@ export default {
     renderMonthHighlights() {
       var arcs = d3.selectAll(".arc");
 
+      var baseGranularity = this.baseGranularity;
       var monthStarts = arcs
         .filter(function (d) {
-          if (this.baseGranularity == "Hours") {
+          if (baseGranularity == "Hours") {
             return d.day == 1 && d.hour == 0;
           }
-          return d.day==1;
+          return d.day == 1;
         })
         .raise();
       if (this.options.monthHighlight) {
@@ -390,7 +433,7 @@ export default {
           })
           .text(function (d) {
             if (!(d.month == 1 && yearTextDisplayed)) {
-              return months[d.month-1];
+              return months[d.month - 1];
             }
           })
           .style("font-size", "15px")
