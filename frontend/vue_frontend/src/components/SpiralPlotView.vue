@@ -107,6 +107,7 @@ export default {
   },
   data() {
     return {
+      //User defined options
       options: {
         yearHighlight: false,
         yearText: true,
@@ -118,35 +119,36 @@ export default {
         granularityItems: ["Hours", "Days", "Months"],
         colorScheme: "Cividis",
       },
+
+      //Default segment per cycle count for each granularity
       defaults: {
         hours: 168,
         days: 365,
         months: 12,
       },
+      //Constants for spiral Plot
+      spiralPlotConstants: {
+        radians: 0.0174532925,
+        cyclePadding: 1,
+        radius: 500,
+        innerRatio: 0.3,
+        width: 1000,
+        height: 1000,
+        segmentAngle: undefined,
+        innerRadius: undefined,
+        segmentWidth: undefined,
+      },
+      margin: { top: 50, right: 50, bottom: 50, left: 50 },
+
       recommendedSeg: true,
       segmentsPerCycle: undefined,
-      radians: 0.0174532925,
-      cyclePadding: 1,
       data: null,
-      radius: 500,
-      innerRatio: 0.3,
-      width: 1000,
-      height: 1000,
       dataSize: 0,
-      //set radius for empty space
-      margin: { top: 50, right: 50, bottom: 50, left: 50 },
-      segmentAngle: undefined,
-      innerRadius: undefined,
-      segmentWidth: undefined,
     };
   },
   watch: {
     options: {
-      handler(newVal, oldVal) {
-        if (oldVal !== newVal) {
-          this.handleOptions();
-        }
-      },
+      handler: "handleOptions",
       deep: true,
     },
     displayedData: "prepareData",
@@ -165,7 +167,6 @@ export default {
   },
   methods: {
     debounceOnSegmentChange() {
-      console.log("Debouncing Segments");
       clearTimeout(this.watcherTimeout);
       // Set a new timeout to debounce the watcher function after 300 milliseconds of inactivity
       this.watcherTimeout = setTimeout(() => {
@@ -187,7 +188,6 @@ export default {
       this.options.granularity = this.baseGranularity;
     },
     handleOptions() {
-      console.log("Handling Options");
       this.setDefaultSegmentsPerCycle();
       this.prepareData();
     },
@@ -264,7 +264,6 @@ export default {
     },
 
     prepareData() {
-      console.log("Preparing Data");
       const aggregatedData = this.aggregateData();
       if (
         (this.segmentsPerCycle == this.defaults.hour &&
@@ -278,10 +277,14 @@ export default {
       } else {
         this.recommendedSeg = false;
       }
-      this.innerRadius = this.radius * this.innerRatio;
-      this.segmentAngle = 360 / this.segmentsPerCycle;
+      this.spiralPlotConstants.innerRadius =
+        this.spiralPlotConstants.radius * this.spiralPlotConstants.innerRatio;
+      this.spiralPlotConstants.segmentAngle = 360 / this.segmentsPerCycle;
       var cycles = Math.ceil(aggregatedData.length / this.segmentsPerCycle);
-      this.segmentWidth = (this.radius * (1 - this.innerRatio)) / (cycles + 1);
+      this.spiralPlotConstants.segmentWidth =
+        (this.spiralPlotConstants.radius *
+          (1 - this.spiralPlotConstants.innerRatio)) /
+        (cycles + 1);
       this.data = aggregatedData.map((entry) => {
         const { date, value, count } = entry;
         const parsedDate = new Date(date);
@@ -498,20 +501,26 @@ export default {
       d3.select(this.$refs.spiralPlot).selectAll("*").remove();
       var c = `d3.interpolate${this.options.colorScheme}`;
       var color = d3.scaleSequential(eval(c));
-      var radians = this.radians;
+      var radians = this.spiralPlotConstants.radians;
       const svg = d3
         .select(this.$refs.spiralPlot)
-        .attr("width", this.width + this.margin.left + this.margin.right)
-        .attr("height", this.height + this.margin.top + this.margin.bottom);
+        .attr(
+          "width",
+          this.spiralPlotConstants.width + this.margin.left + this.margin.right
+        )
+        .attr(
+          "height",
+          this.spiralPlotConstants.height + this.margin.top + this.margin.bottom
+        );
 
       const g = svg
         .append("g")
         .attr(
           "transform",
           "translate(" +
-            (this.margin.left + this.radius) +
+            (this.margin.left + this.spiralPlotConstants.radius) +
             "," +
-            (this.margin.top + this.radius) +
+            (this.margin.top + this.spiralPlotConstants.radius) +
             ")"
         );
 
@@ -541,26 +550,28 @@ export default {
         var position = i - segment * this.segmentsPerCycle;
         //console.log("position: " + position)
 
-        var startAngle = position * this.segmentAngle;
-        var endAngle = (position + 1) * this.segmentAngle;
+        var startAngle = position * this.spiralPlotConstants.segmentAngle;
+        var endAngle = (position + 1) * this.spiralPlotConstants.segmentAngle;
         //console.log("angles: " + startAngle +", " + endAngle)
 
         var startInnerRadius =
-          this.cyclePadding +
-          this.innerRadius +
-          (i / this.segmentsPerCycle) * this.segmentWidth;
+          this.spiralPlotConstants.cyclePadding +
+          this.spiralPlotConstants.innerRadius +
+          (i / this.segmentsPerCycle) * this.spiralPlotConstants.segmentWidth;
         var startOuterRadius =
-          this.innerRadius +
-          (i / this.segmentsPerCycle) * this.segmentWidth +
-          this.segmentWidth;
+          this.spiralPlotConstants.innerRadius +
+          (i / this.segmentsPerCycle) * this.spiralPlotConstants.segmentWidth +
+          this.spiralPlotConstants.segmentWidth;
         var endInnerRadius =
-          this.cyclePadding +
-          this.innerRadius +
-          ((i + 1) / this.segmentsPerCycle) * this.segmentWidth;
+          this.spiralPlotConstants.cyclePadding +
+          this.spiralPlotConstants.innerRadius +
+          ((i + 1) / this.segmentsPerCycle) *
+            this.spiralPlotConstants.segmentWidth;
         var endOuterRadius =
-          this.innerRadius +
-          ((i + 1) / this.segmentsPerCycle) * this.segmentWidth +
-          this.segmentWidth;
+          this.spiralPlotConstants.innerRadius +
+          ((i + 1) / this.segmentsPerCycle) *
+            this.spiralPlotConstants.segmentWidth +
+          this.spiralPlotConstants.segmentWidth;
 
         //console.log("Radi: " + startInnerRadius + ", " + startOuterRadius + ", " + endInnerRadius + ", " + endOuterRadius)
         //set vertices
@@ -576,15 +587,17 @@ export default {
         d.x4 = x(startAngle, startOuterRadius);
         d.y4 = y(startAngle, startOuterRadius);
 
-        let midAngle = startAngle + this.segmentAngle / 2;
+        let midAngle = startAngle + this.spiralPlotConstants.segmentAngle / 2;
         let midInnerRadius =
-          this.innerRadius +
-          this.cyclePadding +
-          ((i + 0.5) / this.segmentsPerCycle) * this.segmentWidth;
+          this.spiralPlotConstants.innerRadius +
+          this.spiralPlotConstants.cyclePadding +
+          ((i + 0.5) / this.segmentsPerCycle) *
+            this.spiralPlotConstants.segmentWidth;
         let midOuterRadius =
-          this.innerRadius +
-          ((i + 0.5) / this.segmentsPerCycle) * this.segmentWidth +
-          this.segmentWidth;
+          this.spiralPlotConstants.innerRadius +
+          ((i + 0.5) / this.segmentsPerCycle) *
+            this.spiralPlotConstants.segmentWidth +
+          this.spiralPlotConstants.segmentWidth;
 
         d.mid1x = x(midAngle, midInnerRadius);
         d.mid1y = y(midAngle, midInnerRadius);
@@ -646,7 +659,7 @@ export default {
       this.renderDayHighlights();
 
       //create Legend
-      var legendWidth = this.width / 2;
+      var legendWidth = this.spiralPlotConstants.width / 2;
       var legendHeight = 20;
 
       var legend = d3
