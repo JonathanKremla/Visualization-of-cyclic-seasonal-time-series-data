@@ -85,7 +85,8 @@
                   label="Select granularity"
                   :items="this.options.granularityItems"
                   v-model="this.options.granularity"
-                ></v-select>
+                >
+                </v-select>
               </v-col>
             </v-row>
           </v-container>
@@ -166,6 +167,9 @@ export default {
     this.setDefaultSegmentsPerCycle();
   },
   methods: {
+    sendUpdatdGranularity() {
+      this.$emit("updateGranularity", this.options.granularity);
+    },
     debounceOnSegmentChange() {
       clearTimeout(this.watcherTimeout);
       // Set a new timeout to debounce the watcher function after 300 milliseconds of inactivity
@@ -190,6 +194,7 @@ export default {
     handleOptions() {
       this.setDefaultSegmentsPerCycle();
       this.prepareData();
+      this.sendUpdatdGranularity();
     },
     setDefaultSegmentsPerCycle() {
       switch (this.options.granularity) {

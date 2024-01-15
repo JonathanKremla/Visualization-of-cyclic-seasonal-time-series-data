@@ -9,23 +9,89 @@ import * as d3 from "d3";
 
 export default {
   props: {
-    displayedData: Object
+    displayedData: Object,
+    updatedGranularity: String,
   },
   data() {
     return {
       data: null,
       dataSize: 0,
+      selectedGranularity: null,
     };
   },
   watch: {
     displayedData: "renderGraph",
+    updatedGranularity: "updateGranularity",
+  },
+  mounted() {
   },
   methods: {
+    updateGranularity(newGranularity) {
+      if(newGranularity == "Hours") {
+        this.data = this.displayedData
+        this.renderGraph()
+      }
+      if (newGranularity == "Months") {
+        const aggregatedData = [];
+        this.displayedData.forEach((el) => {
+          var month = new Date(el.date).toLocaleDateString("default", {
+            month: "short",
+            year: "numeric",
+          });
+          if (!aggregatedData[month]) {
+            // If not, initialize it with the current value
+            aggregatedData[month] = {
+              date: el.date,
+              value: el.value,
+              count: 1,
+            };
+          } else {
+            // If it exists, add the current value to the existing value
+            aggregatedData[month].value += el.value;
+            aggregatedData[month].count += 1;
+          }
+        });
+        Object.values(aggregatedData).forEach((val) => {
+          val.value = val.value / val.count;
+        });
+        this.data = Object.values(aggregatedData)
+        this.renderGraph()
+      }
+      if (newGranularity == "Days") {
+        const aggregatedData = [];
+        this.displayedData.forEach((el) => {
+          var day = new Date(el.date).toLocaleDateString("default", {
+            day: "numeric",
+            month: "short",
+            year: "numeric",
+          });
+          if (!aggregatedData[day]) {
+            // If not, initialize it with the current value
+            aggregatedData[day] = {
+              date: el.date,
+              value: el.value,
+              count: 1,
+            };
+          } else {
+            // If it exists, add the current value to the existing value
+            aggregatedData[day].value += el.value;
+            aggregatedData[day].count += 1;
+          }
+        });
+        Object.values(aggregatedData).forEach((val) => {
+          val.value = val.value / val.count;
+        });
+        this.data = Object.values(aggregatedData)
+        this.renderGraph()
+      }
+    },
     renderGraph() {
       d3.select(this.$refs.linePlot).selectAll("*").remove();
       const width = 800;
       const height = 500;
       const padding = 50;
+
+      const graphData = this.data == undefined ? this.displayedData : this.data;
 
       const svg = d3.select(this.$refs.linePlot).attr("width", width).attr("height", height);
       const g = svg
@@ -37,7 +103,7 @@ export default {
       const x = d3
         .scaleTime()
         .domain(
-          d3.extent(this.displayedData, function (d) {
+          d3.extent(graphData, function (d) {
             return parseTime(d.date);
           })
         )
@@ -46,7 +112,7 @@ export default {
       const y = d3
         .scaleLinear()
         .domain(
-          d3.extent(this.displayedData, function (d) {
+          d3.extent(graphData, function (d) {
             return d.value;
           })
         )
@@ -75,7 +141,7 @@ export default {
         .attr("text-anchor", "end");
 
       g.append("path")
-        .datum(this.displayedData)
+        .datum(graphData)
         .attr("fill", "none")
         .attr("stroke", "steelblue")
         .attr("stroke-width", 1.5)

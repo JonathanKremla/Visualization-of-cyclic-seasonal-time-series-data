@@ -9,7 +9,6 @@
           >Get Data 1</v-btn
         >
         <v-btn @click="getMessage(2)" value="2">Get Data 2</v-btn>
-        <v-btn @click="getMessage(3)" value="3">Get Data 3</v-btn>
       </v-btn-toggle>
       <h2 v-if="chosenDataSet">Chosen Data Set:</h2>
       <pre>{{ chosenDataSet }}</pre>

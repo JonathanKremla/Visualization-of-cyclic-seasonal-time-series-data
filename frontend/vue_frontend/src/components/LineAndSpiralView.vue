@@ -11,7 +11,10 @@
     v-on:updatedRange="updateRange"
     ></CustomRangeSlider>
     <h2>Line Plot</h2>
-    <LinePlotView v-if="this.displayedData" :displayedData="this.displayedData">
+    <LinePlotView v-if="this.displayedData" 
+      :displayedData="this.displayedData"
+      :updatedGranularity="this.updatedGranularity"
+    >
     </LinePlotView>
 
     <h2>Spiral Plot</h2>
@@ -21,6 +24,7 @@
         :baseGranularity="this.granularity"
         :displayedData="this.displayedData"
         :segmentsPerCycle="this.segmentsPerCycle"
+        v-on:updateGranularity="updateGranularity"
       ></SpiralPlotView>
     </div>
   </div>
@@ -41,6 +45,7 @@ export default {
       displayedData: null,
       dataSize: 0,
       granularity: undefined,
+      updatedGranularity: undefined,
     };
   },
   watch: {
@@ -53,6 +58,9 @@ export default {
     this.checkGranularity();
   },
   methods: {
+    updateGranularity(newGranularity) {
+      this.updatedGranularity = newGranularity;
+    },
     checkGranularity(){
       var days = [];
       this.data.forEach((el) => {
