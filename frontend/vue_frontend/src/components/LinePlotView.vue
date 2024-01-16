@@ -27,9 +27,6 @@ export default {
   },
   mounted() {},
   methods: {
-    sendSelectedData() {
-      console.log(this.selectedData);
-    },
     updateGranularity(newGranularity) {
       if (newGranularity == "Hours") {
         this.data = this.displayedData;
@@ -158,9 +155,10 @@ export default {
 
       g.append("g").attr("transform", "scale(0.9,0.8)").call(brush);
 
+      const self = this;
       function brushed({ selection }) {
         if (selection) {
-          console.log(graphData.filter((el)=>x(parseTime(el.date)) in d3.range(selection[0], selection[1])));
+          self.$emit("selectedData",graphData.filter((el)=>x(parseTime(el.date)) in d3.range(selection[0], selection[1])));
         }
       }
     },

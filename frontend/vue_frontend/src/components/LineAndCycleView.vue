@@ -23,9 +23,8 @@
 
     <CyclePlotView
       v-if="this.displayedData"
-      :displayedData="this.displayedData"
+      :displayedData="this.displayedDataCycle == null ? this.displayedData : this.displayedDataCycle"
       :granularity="this.selectedGranularity"
-      :selectedData="this.selectedData"
     ></CyclePlotView>
   </div>
 </template>
@@ -42,6 +41,7 @@ export default {
       displayedRange: [0, 0],
       data: null,
       displayedData: null,
+      displayedDataCycle: null,
       selectedData: null,
       dataSize: 0,
       granularity: undefined,
@@ -58,8 +58,7 @@ export default {
   },
   methods: {
     updateData(selectedData) {
-      console.log(selectedData)
-      this.selectedData = selectedData;
+      this.displayedDataCycle = selectedData;
     },
     checkGranularity(){
       var days = [];

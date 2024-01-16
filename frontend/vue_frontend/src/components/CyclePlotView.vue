@@ -48,13 +48,8 @@ export default {
   watch: {
     displayedData: "groupData",
     granularity: "groupData",
-    selectedData: "handleSelection",
   },
   methods: {
-    handleSelection(selectedData){
-      console.log(selectedData)
-      this.displayedData = selectedData
-    },
     calculateMonthYear() {
       //group data by months per year
       var groups = [
@@ -73,7 +68,6 @@ export default {
       ];
       const groupedData = {};
       const aggregatedData = [];
-      console.log(this.displayedData)
       const parseTime = d3.timeParse("%b %e, %Y, %I:%M:%S %p");
       this.displayedData.forEach((entry) => {
         const date = parseTime(entry.date);
