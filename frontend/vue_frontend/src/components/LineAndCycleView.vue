@@ -79,10 +79,10 @@ export default {
 
       switch (average) {
         case 1:
-          this.granularity = "day"
+          this.granularity = "Days"
           break;
         case 24:
-          this.granularity = "hour"
+          this.granularity = "Hours"
           break;
         default:
           console.error("Unknown granularity or too many missing values")
