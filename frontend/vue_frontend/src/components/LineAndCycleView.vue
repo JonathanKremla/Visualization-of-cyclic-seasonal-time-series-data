@@ -3,15 +3,19 @@
     <router-link to="/">
       <button>Home</button>
     </router-link>
-    <CustomRangeSlider 
-    v-if="this.dataSize"
-    :data="this.data"
-    :max="this.dataSize"
-    :granularity="this.granularity"
-    v-on:updatedRange="updateRange"
+    <CustomRangeSlider
+      v-if="this.dataSize"
+      :data="this.data"
+      :max="this.dataSize"
+      :granularity="this.granularity"
+      v-on:updatedRange="updateRange"
     ></CustomRangeSlider>
     <h2>Line Plot</h2>
-    <LinePlotView v-if="this.displayedData" :displayedData="this.displayedData" v-on:selectedData="updateData">
+    <LinePlotView
+      v-if="this.displayedData"
+      :displayedData="this.displayedData"
+      v-on:selectedData="updateData"
+    >
     </LinePlotView>
 
     <h2>Cycle Plot</h2>
@@ -23,7 +27,11 @@
 
     <CyclePlotView
       v-if="this.displayedData"
-      :displayedData="this.displayedDataCycle == null ? this.displayedData : this.displayedDataCycle"
+      :displayedData="
+        this.displayedDataCycle == null
+          ? this.displayedData
+          : this.displayedDataCycle
+      "
       :granularity="this.selectedGranularity"
     ></CyclePlotView>
   </div>
@@ -32,9 +40,9 @@
 <script>
 import LinePlotView from "./LinePlotView.vue";
 import CyclePlotView from "./CyclePlotView.vue";
-import CustomRangeSlider from './CustomRangeSlider.vue';
+import CustomRangeSlider from "./CustomRangeSlider.vue";
 export default {
-  components: { LinePlotView, CyclePlotView, CustomRangeSlider},
+  components: { LinePlotView, CyclePlotView, CustomRangeSlider },
   data() {
     return {
       ticks: {},
@@ -45,7 +53,7 @@ export default {
       selectedData: null,
       dataSize: 0,
       granularity: undefined,
-      selectedGranularity:"",
+      selectedGranularity: "",
     };
   },
   watch: {
@@ -60,43 +68,42 @@ export default {
     updateData(selectedData) {
       this.displayedDataCycle = selectedData;
     },
-    checkGranularity(){
+    checkGranularity() {
       var days = [];
       this.data.forEach((el) => {
         var day = new Date(el.date).getDate();
         var month = new Date(el.date).getMonth();
         var year = new Date(el.date).getFullYear();
-        var dateString = `${day} ${month} ${year}`
-        if(dateString in days){
-          days[dateString] += 1
+        var dateString = `${day} ${month} ${year}`;
+        if (dateString in days) {
+          days[dateString] += 1;
         } else {
-          days[dateString] = 1
+          days[dateString] = 1;
         }
-      })
+      });
       var average = 0;
       var length = 0;
       Object.values(days).forEach((count) => {
-        average += count
-        length += 1
-      })
+        average += count;
+        length += 1;
+      });
       //calculate rounded average to account for missing values
-      average = Math.ceil(average/length)
+      average = Math.ceil(average / length);
 
       switch (average) {
         case 1:
-          this.granularity = "Days"
+          this.granularity = "Days";
           break;
         case 24:
-          this.granularity = "Hours"
+          this.granularity = "Hours";
           break;
         default:
-          console.error("Unknown granularity or too many missing values")
+          console.error("Unknown granularity or too many missing values");
           break;
       }
-      console.log(this.granularity)
     },
-    updateRange(updatedRange){
-      this.displayedRange = updatedRange
+    updateRange(updatedRange) {
+      this.displayedRange = updatedRange;
     },
     sliceData() {
       if (this.displayedData !== null) {

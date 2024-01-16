@@ -4,7 +4,7 @@
   </div>
 </template>
 
-<script >
+<script>
 import * as d3 from "d3";
 
 export default {
@@ -15,7 +15,6 @@ export default {
   data() {
     return {
       data: null,
-      selectedData: undefined,
       dataSize: 0,
       selectedGranularity: null,
     };
@@ -23,7 +22,6 @@ export default {
   watch: {
     displayedData: "renderGraph",
     updatedGranularity: "updateGranularity",
-    selectedData: "sendSelectedData",
   },
   mounted() {},
   methods: {
@@ -158,7 +156,13 @@ export default {
       const self = this;
       function brushed({ selection }) {
         if (selection) {
-          self.$emit("selectedData",graphData.filter((el)=>x(parseTime(el.date)) in d3.range(selection[0], selection[1])));
+          self.$emit(
+            "selectedData",
+            graphData.filter(
+              (el) =>
+                (x(parseTime(el.date)) >= selection[0] && x(parseTime(el.date)) <= selection[1])
+            )
+          );
         }
       }
     },
