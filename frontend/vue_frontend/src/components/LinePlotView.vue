@@ -15,6 +15,7 @@ export default {
   data() {
     return {
       data: null,
+      selectedData: undefined,
       dataSize: 0,
       selectedGranularity: null,
     };
@@ -22,14 +23,17 @@ export default {
   watch: {
     displayedData: "renderGraph",
     updatedGranularity: "updateGranularity",
+    selectedData: "sendSelectedData",
   },
-  mounted() {
-  },
+  mounted() {},
   methods: {
+    sendSelectedData() {
+      console.log(this.selectedData);
+    },
     updateGranularity(newGranularity) {
-      if(newGranularity == "Hours") {
-        this.data = this.displayedData
-        this.renderGraph()
+      if (newGranularity == "Hours") {
+        this.data = this.displayedData;
+        this.renderGraph();
       }
       if (newGranularity == "Months") {
         const aggregatedData = [];
@@ -54,8 +58,8 @@ export default {
         Object.values(aggregatedData).forEach((val) => {
           val.value = val.value / val.count;
         });
-        this.data = Object.values(aggregatedData)
-        this.renderGraph()
+        this.data = Object.values(aggregatedData);
+        this.renderGraph();
       }
       if (newGranularity == "Days") {
         const aggregatedData = [];
@@ -81,8 +85,8 @@ export default {
         Object.values(aggregatedData).forEach((val) => {
           val.value = val.value / val.count;
         });
-        this.data = Object.values(aggregatedData)
-        this.renderGraph()
+        this.data = Object.values(aggregatedData);
+        this.renderGraph();
       }
     },
     renderGraph() {
@@ -93,7 +97,10 @@ export default {
 
       const graphData = this.data == undefined ? this.displayedData : this.data;
 
-      const svg = d3.select(this.$refs.linePlot).attr("width", width).attr("height", height);
+      const svg = d3
+        .select(this.$refs.linePlot)
+        .attr("width", width)
+        .attr("height", height);
       const g = svg
         .append("g")
         .attr("transform", "translate(" + padding + "," + padding + ")");
@@ -146,6 +153,16 @@ export default {
         .attr("stroke", "steelblue")
         .attr("stroke-width", 1.5)
         .attr("d", line);
+
+      const brush = d3.brushX().on("brush", brushed);
+
+      g.append("g").attr("transform", "scale(0.9,0.8)").call(brush);
+
+      function brushed({ selection }) {
+        if (selection) {
+          console.log(graphData.filter((el)=>x(parseTime(el.date)) in d3.range(selection[0], selection[1])));
+        }
+      }
     },
   },
 };

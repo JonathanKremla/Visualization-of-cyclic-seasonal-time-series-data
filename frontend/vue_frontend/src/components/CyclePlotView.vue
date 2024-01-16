@@ -33,6 +33,7 @@ export default {
   props: {
     displayedData: Object,
     granularity: String,
+    selectedData: Object,
   },
   data() {
     return {
@@ -47,8 +48,13 @@ export default {
   watch: {
     displayedData: "groupData",
     granularity: "groupData",
+    selectedData: "handleSelection",
   },
   methods: {
+    handleSelection(selectedData){
+      console.log(selectedData)
+      this.displayedData = selectedData
+    },
     calculateMonthYear() {
       //group data by months per year
       var groups = [

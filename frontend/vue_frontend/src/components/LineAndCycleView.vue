@@ -11,7 +11,7 @@
     v-on:updatedRange="updateRange"
     ></CustomRangeSlider>
     <h2>Line Plot</h2>
-    <LinePlotView v-if="this.displayedData" :displayedData="this.displayedData">
+    <LinePlotView v-if="this.displayedData" :displayedData="this.displayedData" v-on:selectedData="updateData">
     </LinePlotView>
 
     <h2>Cycle Plot</h2>
@@ -25,6 +25,7 @@
       v-if="this.displayedData"
       :displayedData="this.displayedData"
       :granularity="this.selectedGranularity"
+      :selectedData="this.selectedData"
     ></CyclePlotView>
   </div>
 </template>
@@ -41,6 +42,7 @@ export default {
       displayedRange: [0, 0],
       data: null,
       displayedData: null,
+      selectedData: null,
       dataSize: 0,
       granularity: undefined,
       selectedGranularity:"",
@@ -55,6 +57,10 @@ export default {
     this.checkGranularity();
   },
   methods: {
+    updateData(selectedData) {
+      console.log(selectedData)
+      this.selectedData = selectedData;
+    },
     checkGranularity(){
       var days = [];
       this.data.forEach((el) => {
