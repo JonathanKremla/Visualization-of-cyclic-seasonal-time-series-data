@@ -14,6 +14,7 @@
     <LinePlotView v-if="this.displayedData" 
       :displayedData="this.displayedData"
       :updatedGranularity="this.updatedGranularity"
+      v-on:selectedData="this.updateData"
     >
     </LinePlotView>
 
@@ -22,8 +23,7 @@
       <SpiralPlotView
         v-if="this.displayedData"
         :baseGranularity="this.granularity"
-        :displayedData="this.displayedData"
-        :segmentsPerCycle="this.segmentsPerCycle"
+        :displayedData="this.selectedData ? this.selectedData : this.displayedData"
         v-on:updateGranularity="updateGranularity"
       ></SpiralPlotView>
     </div>
@@ -40,12 +40,12 @@ export default {
     return {
       ticks: {},
       displayedRange: [0, 0],
-      segmentsPerCycle: "365",
       data: null,
       displayedData: null,
       dataSize: 0,
       granularity: undefined,
       updatedGranularity: undefined,
+      selectedData: undefined,
     };
   },
   watch: {
@@ -58,6 +58,9 @@ export default {
     this.checkGranularity();
   },
   methods: {
+    updateData(data) {
+      this.selectedData = data;
+    },
     updateGranularity(newGranularity) {
       this.updatedGranularity = newGranularity;
     },

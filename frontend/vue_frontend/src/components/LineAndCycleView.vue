@@ -14,7 +14,7 @@
     <LinePlotView
       v-if="this.displayedData"
       :displayedData="this.displayedData"
-      v-on:selectedData="updateData"
+      v-on:selectedData="this.updateData"
     >
     </LinePlotView>
 
