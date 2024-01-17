@@ -212,7 +212,7 @@ export default {
           this.aggregatedData = this.calculateMonthYear();
           this.createCyclePlot();
           break;
-        case "Day-per-Week":
+        case "Days-per-Week":
           this.aggregatedData = this.calculateDayWeek();
           this.createCyclePlot();
           break;

@@ -14,6 +14,7 @@
     <LinePlotView
       v-if="this.displayedData"
       :displayedData="this.displayedData"
+      :updatedGranularity="this.selectedGranularity.split('-')[0]"
       v-on:selectedData="this.updateData"
     >
     </LinePlotView>
@@ -22,7 +23,7 @@
     <v-select
       v-model="this.selectedGranularity"
       label="Select Granularity:"
-      :items="['Months-per-Year', 'Day-per-Week']"
+      :items="['Months-per-Year', 'Days-per-Week']"
     ></v-select>
 
     <CyclePlotView
