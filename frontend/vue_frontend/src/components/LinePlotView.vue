@@ -11,6 +11,7 @@ export default {
   props: {
     displayedData: Object,
     updatedGranularity: String,
+    highlightedData: Object,
   },
   data() {
     return {
@@ -22,9 +23,13 @@ export default {
   watch: {
     displayedData: "renderGraph",
     updatedGranularity: "updateGranularity",
+    highlightedData: "highlightData",
   },
   mounted() {},
   methods: {
+    highlightData(data) {
+      console.log(data)
+    },
     updateGranularity(newGranularity) {
       if (newGranularity == "Hours") {
         this.data = this.displayedData;

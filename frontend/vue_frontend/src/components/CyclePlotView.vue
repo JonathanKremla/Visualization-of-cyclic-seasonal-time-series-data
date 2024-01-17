@@ -24,7 +24,7 @@ Date.prototype.getWeek = function () {
       ((date.getTime() - week1.getTime()) / 86400000 -
         3 +
         ((week1.getDay() + 6) % 7)) /
-        7
+      7
     )
   );
 };
@@ -160,6 +160,7 @@ export default {
             values: [],
             count: 0,
             sum: 0,
+            fullDate: date,
           };
         }
 
@@ -183,6 +184,7 @@ export default {
                     category: day,
                     time: entry[1].time,
                     value: entry[1].values[0],
+                    fullDate: entry[1].fullDate,
                   },
                 ],
               };
@@ -193,12 +195,13 @@ export default {
                 category: day,
                 time: entry[1].time,
                 value: entry[1].values[0],
+                fullDate: entry[1].fullDate,
               });
             }
           }
         });
         //sort values by weeks
-        aggregatedData[day].values.sort((a,b) => {return a.time-b.time});
+        aggregatedData[day].values.sort((a, b) => { return a.time - b.time });
       });
 
       Object.values(aggregatedData).forEach((val) => {
@@ -354,6 +357,28 @@ export default {
         .attr("stroke", "red")
         .style("stroke-width", 2)
         .style("stroke-dasharray", "2");
+
+      svg
+        .selectAll(".segments")
+        .data(this.aggregatedData)
+        .enter()
+        .append("rect")
+        .attr("class", "segments")
+        .attr("x", function (d) {
+          return x(d.name);
+        })
+        .attr("y", 0)
+        .attr("width", x.bandwidth())
+        .attr("height", this.height)
+        .attr("stroke", "black")
+        .attr("fill", "transparent")
+
+
+      d3.selectAll(".segments").on("click", (event) => {
+        this.$emit("highlightedData", event.target.__data__)
+      })
+
+
     },
   },
 };

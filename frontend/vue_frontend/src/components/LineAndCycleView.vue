@@ -15,6 +15,7 @@
       v-if="this.displayedData"
       :displayedData="this.displayedData"
       :updatedGranularity="this.selectedGranularity.split('-')[0]"
+      :highlightedData="this.highlightedData"
       v-on:selectedData="this.updateData"
     >
     </LinePlotView>
@@ -34,6 +35,7 @@
           : this.displayedDataCycle
       "
       :granularity="this.selectedGranularity"
+      v-on:highlightedData="this.highlightData"
     ></CyclePlotView>
   </div>
 </template>
@@ -54,6 +56,7 @@ export default {
       selectedData: null,
       dataSize: 0,
       granularity: undefined,
+      highlightedData: undefined,
       selectedGranularity: "",
     };
   },
@@ -68,6 +71,9 @@ export default {
   methods: {
     updateData(selectedData) {
       this.displayedDataCycle = selectedData;
+    },
+    highlightData(highlightedData){
+      this.highlightedData = highlightedData;
     },
     checkGranularity() {
       var days = [];
