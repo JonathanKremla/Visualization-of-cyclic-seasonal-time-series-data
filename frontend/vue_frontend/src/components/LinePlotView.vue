@@ -22,14 +22,11 @@ export default {
   },
   watch: {
     displayedData: "renderGraph",
+    highlightedData: "renderGraph",
     updatedGranularity: "updateGranularity",
-    highlightedData: "highlightData",
   },
-  mounted() {},
+  mounted() { },
   methods: {
-    highlightData(data) {
-      console.log(data)
-    },
     updateGranularity(newGranularity) {
       if (newGranularity == "Hours") {
         this.data = this.displayedData;
@@ -153,6 +150,27 @@ export default {
         .attr("stroke", "steelblue")
         .attr("stroke-width", 1.5)
         .attr("d", line);
+
+
+      //draw highlighted points
+      if (this.highlightedData) {
+        console.log(this.highlightedData.values)
+        g
+          .selectAll("points")
+          .data(this.highlightedData.values)
+          .enter()
+          .append("circle")
+          .attr("cx", function (d) {
+            console.log(d.fullDate)
+            return x(d.fullDate);
+          })
+          .attr("cy", function (d) {
+            return y(d.value);
+          })
+          .attr("r", 3)
+          .attr("fill", "red")
+          .attr("stroke", "white");
+      }
 
       const brush = d3.brushX().on("brush", brushed);
 

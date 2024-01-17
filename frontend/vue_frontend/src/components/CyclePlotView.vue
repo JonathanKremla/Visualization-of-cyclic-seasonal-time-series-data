@@ -150,10 +150,11 @@ export default {
         const date = parseTime(entry.date);
         const day = date.getDay();
         const week = date.getWeek();
-        const weekYearKey = `${day}-${week}`;
+        const year = date.getFullYear();
+        const key = `${day}-${week}-${year}`;
 
-        if (!groupedData[weekYearKey]) {
-          groupedData[weekYearKey] = {
+        if (!groupedData[key]) {
+          groupedData[key] = {
             name: day,
             category: groups[day],
             time: week,
@@ -164,8 +165,8 @@ export default {
           };
         }
 
-        groupedData[weekYearKey].count += 1;
-        groupedData[weekYearKey].sum += entry.value;
+        groupedData[key].count += 1;
+        groupedData[key].sum += entry.value;
       });
       Object.values(groupedData).forEach((dayData) => {
         const average = dayData.sum / dayData.count;
