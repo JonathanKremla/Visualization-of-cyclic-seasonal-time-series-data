@@ -24,7 +24,7 @@ Date.prototype.getWeek = function () {
       ((date.getTime() - week1.getTime()) / 86400000 -
         3 +
         ((week1.getDay() + 6) % 7)) /
-      7
+        7
     )
   );
 };
@@ -202,13 +202,15 @@ export default {
           }
         });
         //sort values by weeks
-        aggregatedData[day].values.sort((a, b) => { return a.time - b.time });
+        aggregatedData[day].values.sort((a, b) => {
+          return a.time - b.time;
+        });
       });
 
       Object.values(aggregatedData).forEach((val) => {
         val.average = val.average / val.count;
       });
-      return Object.values(aggregatedData)
+      return Object.values(aggregatedData);
     },
     groupData() {
       switch (this.granularity) {
@@ -233,7 +235,11 @@ export default {
         .attr("width", this.width + this.margin.left + this.margin.right)
         .attr("height", this.height + this.margin.top + this.margin.bottom)
         .append("g")
-        .attr("transform", `translate(${this.margin.left},${this.margin.top})`);
+        .append("g")
+        .attr("transform", `translate(${this.margin.left},${this.margin.top})`)
+        .attr("class", "zoomContainer");
+      
+      
 
       // Draw the y-axis
       const y = d3
@@ -252,9 +258,14 @@ export default {
           ),
         ]);
       svg.append("g").call(d3.axisLeft(y));
+      console.log(this.aggregatedData);
+      const dynamicWidth =
+        this.aggregatedData[0].values.length * 8 < this.width
+          ? this.width
+          : this.aggregatedData[0].values.length * 8;
       const xx = d3
         .scaleLinear()
-        .range([r * 2, this.width / this.aggregatedData.length - r * 2])
+        .range([r * 2, dynamicWidth / this.aggregatedData.length - r * 2])
         .domain([
           Math.min(
             ...this.aggregatedData.flatMap((category) =>
@@ -271,8 +282,9 @@ export default {
       // Draw the x-axis
       const x = d3
         .scaleBand()
-        .range([0, this.width])
+        .range([0, dynamicWidth])
         .domain(this.aggregatedData.map((obj) => obj.name));
+
       svg
         .append("g")
         .attr("transform", "translate(0," + this.height + ")")
@@ -372,14 +384,22 @@ export default {
         .attr("width", x.bandwidth())
         .attr("height", this.height)
         .attr("stroke", "black")
-        .attr("fill", "transparent")
-
+        .attr("fill", "transparent");
 
       d3.selectAll(".segments").on("click", (event) => {
-        this.$emit("highlightedData", event.target.__data__)
-      })
+        this.$emit("highlightedData", event.target.__data__);
+      });
 
+      const zoom = d3.zoom().scaleExtent([1, 2]).on("zoom", zoomed);
 
+      const self = this;
+      function zoomed({ transform }) {
+        if (dynamicWidth != self.width) {
+          transform.y = self.margin.top;
+          d3.select(".zoomContainer").attr("transform", transform);
+        }
+      }
+      svg.call(zoom);
     },
   },
 };

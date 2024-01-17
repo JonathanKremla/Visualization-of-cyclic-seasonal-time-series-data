@@ -161,7 +161,6 @@ export default {
           .enter()
           .append("circle")
           .attr("cx", function (d) {
-            console.log(d.fullDate)
             return x(d.fullDate);
           })
           .attr("cy", function (d) {
