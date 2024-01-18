@@ -117,7 +117,7 @@ export default {
         dayHighlight: false,
         granularity: undefined,
         yearText: true,
-        granularityItems: ["Hours", "Days", "Months"],
+        granularityItems: ["Hours", "Days", "Weeks","Months" ],
         colorScheme: "Cividis",
       },
 
@@ -126,6 +126,7 @@ export default {
         hours: 168,
         days: 365,
         months: 12,
+        weeks: 53,
       },
       //Constants for spiral Plot
       spiralPlotConstants: {
@@ -207,6 +208,9 @@ export default {
         case "Months":
           this.segmentsPerCycle = this.defaults.months;
           break;
+        case "Weeks":
+          this.segmentsPerCycle = this.defaults.weeks;
+          break;
         default:
           break;
       }
@@ -266,6 +270,34 @@ export default {
         });
         return Object.values(aggregatedData);
       }
+      if(this.options.granularity == "Weeks") {
+        const parseTime = d3.timeParse("%b %e, %Y, %I:%M:%S %p");
+        const aggregatedData = [];
+        this.displayedData.forEach((el) => {
+          var year = new Date(el.date).toLocaleDateString("default", {
+            year: "numeric",
+          });
+          var week = parseTime(el.date).getWeek() + year;
+          if (!aggregatedData[week]) {
+            // If not, initialize it with the current value
+            aggregatedData[week] = {
+              date: el.date,
+              value: el.value,
+              count: 1,
+            };
+          } else {
+            // If it exists, add the current value to the existing value
+            aggregatedData[week].value += el.value;
+            aggregatedData[week].count += 1;
+          }
+        });
+        Object.values(aggregatedData).forEach((val) => {
+          val.value = val.value / val.count;
+        });
+        return Object.values(aggregatedData).sort((a, b) => {
+          return new Date(a.date) - new Date(b.date);
+        });
+      }
     },
 
     prepareData() {
@@ -275,8 +307,10 @@ export default {
           this.options.granularity == "Hours") ||
         (this.segmentsPerCycle == this.defaults.days &&
           this.options.granularity == "Days") ||
-        (this.segmentsPerCycle == this.defaults.month &&
-          this.options.granularity == "Months")
+        (this.segmentsPerCycle == this.defaults.months &&
+          this.options.granularity == "Months") ||
+        (this.segmentsPerCycle == this.defaults.weeks &&
+          this.options.granularity == "Weeks")
       ) {
         this.recommendedSeg = true;
       } else {
@@ -504,11 +538,6 @@ export default {
 
     renderGraph() {
       d3.select(this.$refs.spiralPlot).selectAll("*").remove();
-      var infoBox = d3
-        .select("body")
-        .append("div")
-        .attr("class", "infoBox")
-        .style("opacity", 0);
       var c = `d3.interpolate${this.options.colorScheme}`;
       var color = d3.scaleSequential(eval(c));
       var radians = this.spiralPlotConstants.radians;
@@ -554,6 +583,12 @@ export default {
         return d.value;
       });
       color.domain(dataExtent);
+
+      var infoBox = d3
+        .select("body")
+        .append("div")
+        .attr("class", "infoBox")
+        .style("opacity", 0);
 
       this.data.forEach((d, i) => {
         var segment = Math.floor(i / this.segmentsPerCycle);
@@ -662,9 +697,19 @@ export default {
         })
         .on("mouseout", function (d, i) {
           d3.select(this).transition().duration("50").attr("opacity", "1");
+          infoBox.html("").style("opacity", 0);
         })
         .on("click", function (event) {
-          d3.select(this).append("rect")
+          var data = event.originalTarget.__data__;
+          console.log(data);
+          infoBox.transition().duration(50).style("opacity", 1);
+          infoBox
+            .html(
+              `value: ${Math.round(data.value * 100)/100} <br> date: ${data.day}.${data.month}.${data.year}`
+            )
+            .style("left", event.pageX + 10 + "px")
+            .style("top", event.pageY - 15 + "px")
+            .style("color", "black");
         });
 
       var yearStarts = arcs
@@ -806,6 +851,25 @@ export default {
                 return "white";
               }
               return color(d.value);
+            })
+            .on("mouseover", function (d, i) {
+              d3.select(this).transition().duration("50").attr("opacity", ".5");
+            })
+            .on("mouseout", function (d, i) {
+              d3.select(this).transition().duration("50").attr("opacity", "1");
+              infoBox.html("").style("opacity", 0);
+            })
+            .on("click", function (event) {
+              var data = event.originalTarget.__data__;
+              console.log(data);
+              infoBox.transition().duration(50).style("opacity", 1);
+              infoBox
+                .html(
+                  `value: ${Math.round(data.value* 100) / 100} <br> date: ${data.day}.${data.month}.${data.year}`
+                )
+                .style("left", event.pageX + 10 + "px")
+                .style("top", event.pageY - 15 + "px")
+                .style("color", "black");
             });
         }, 300);
       }
@@ -833,3 +897,16 @@ const months = [
   "December",
 ];
 </script>
+<style>
+div.infoBox {
+  position: absolute;
+  text-align: center;
+  padding: 0.5rem;
+  background: #ffffff;
+  color: #313639;
+  border: 1px solid #313639;
+  border-radius: 8px;
+  pointer-events: none;
+  font-size: 1rem;
+}
+</style>
