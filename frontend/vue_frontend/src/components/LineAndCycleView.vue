@@ -24,7 +24,7 @@
     <v-select
       v-model="this.selectedGranularity"
       label="Select Granularity:"
-      :items="['Months-per-Year', 'Days-per-Week']"
+      :items="['Months-per-Year', 'Days-per-Week', 'Hours-per-Day', 'Days-per-Month', 'Weeks-per-Month', 'Weeks-per-Year']"
     ></v-select>
 
     <CyclePlotView

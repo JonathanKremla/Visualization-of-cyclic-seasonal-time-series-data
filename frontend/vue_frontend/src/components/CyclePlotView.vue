@@ -50,6 +50,433 @@ export default {
     granularity: "groupData",
   },
   methods: {
+    calculateHourDay() {
+      var groups = [
+        "00:00",
+        "01:00",
+        "02:00",
+        "03:00",
+        "04:00",
+        "05:00",
+        "06:00",
+        "07:00",
+        "08:00",
+        "09:00",
+        "10:00",
+        "11:00",
+        "12:00",
+        "13:00",
+        "14:00",
+        "15:00",
+        "16:00",
+        "17:00",
+        "18:00",
+        "19:00",
+        "20:00",
+        "21:00",
+        "22:00",
+        "23:00",
+        "24:00",
+      ]
+      const groupedData = {};
+      const aggregatedData = [];
+      const parseTime = d3.timeParse("%b %e, %Y, %I:%M:%S %p");
+      this.displayedData.forEach((entry) => {
+        const date = parseTime(entry.date);
+        const month = date.getMonth();
+        const year = date.getFullYear();
+        const day = new Intl.DateTimeFormat("en-US", {day: "numeric"}).format(
+          date
+        );
+        const hour = new Intl.DateTimeFormat("en-US", {hour: "numeric", minute:"numeric", hour12:false}).format(
+          date
+        );
+        const key = `${hour}-${day}-${month}-${year}`;
+
+        if (!groupedData[key]) {
+          groupedData[key] = {
+            name: new Intl.DateTimeFormat("en-US", { hour: "numeric", minute:"numeric", hour12:false }).format(
+              date
+            ),
+            category: hour,
+            time: date,
+            values: [],
+            count: 0,
+            sum: 0,
+            fullDate: date,
+          };
+        }
+
+        groupedData[key].count += 1;
+        groupedData[key].sum += entry.value;
+      });
+
+      Object.values(groupedData).forEach((data) => {
+        const average = data.sum / data.count;
+        data.values.push(average);
+      });
+
+      groups.forEach((element) => {
+        Object.entries(groupedData).forEach((entry) => {
+          if (entry[1].name === element) {
+            if (!(element in aggregatedData)) {
+              aggregatedData[element] = {
+                name: element,
+                count: 1,
+                average: entry[1].values[0],
+                values: [
+                  {
+                    category: element,
+                    time: entry[1].time,
+                    value: entry[1].values[0],
+                    fullDate: entry[1].fullDate,
+                  },
+                ],
+              };
+            } else {
+              aggregatedData[element].average += entry[1].values[0];
+              aggregatedData[element].count += 1;
+              aggregatedData[element].values.push({
+                category: entry[1].name,
+                time: entry[1].time,
+                value: entry[1].values[0],
+                fullDate: entry[1].fullDate,
+              });
+            }
+          }
+        });
+      });
+
+      Object.values(aggregatedData).forEach((val) => {
+        val.average = val.average / val.count;
+      });
+
+      return Object.values(aggregatedData);
+
+    },
+    calculateDayMonth() {
+      var groups = [
+        "1",
+        "2",
+        "3",
+        "4",
+        "5",
+        "6",
+        "7",
+        "8",
+        "9",
+        "10",
+        "11",
+        "12",
+        "13",
+        "14",
+        "15",
+        "16",
+        "17",
+        "18",
+        "19",
+        "20",
+        "21",
+        "22",
+        "23",
+        "24",
+        "25",
+        "26",
+        "27",
+        "28",
+        "29",
+        "30",
+        "31",
+      ]
+      const groupedData = {};
+      const aggregatedData = [];
+      const parseTime = d3.timeParse("%b %e, %Y, %I:%M:%S %p");
+      this.displayedData.forEach((entry) => {
+        const date = parseTime(entry.date);
+        const month = date.getMonth();
+        const year = date.getFullYear();
+        const day = 
+            new Intl.DateTimeFormat("en-US", { day: "numeric" }).format(
+              date
+            );
+
+        const key = `${day}-${month}-${year}`;
+
+        if (!groupedData[key]) {
+          groupedData[key] = {
+            name:  day,
+            category: day,
+            time: date,
+            values: [],
+            count: 0,
+            sum: 0,
+            fullDate: date,
+          };
+        }
+
+        groupedData[key].count += 1;
+        groupedData[key].sum += entry.value;
+      });
+
+
+      Object.values(groupedData).forEach((data) => {
+        const average = data.sum / data.count;
+        data.values.push(average);
+      });
+
+      groups.forEach((element) => {
+        Object.entries(groupedData).forEach((entry) => {
+          if (entry[1].name === element) {
+            if (!(element in aggregatedData)) {
+              aggregatedData[element] = {
+                name: element,
+                count: 1,
+                average: entry[1].values[0],
+                values: [
+                  {
+                    category: element,
+                    time: entry[1].time,
+                    value: entry[1].values[0],
+                    fullDate: entry[1].fullDate,
+                  },
+                ],
+              };
+            } else {
+              aggregatedData[element].average += entry[1].values[0];
+              aggregatedData[element].count += 1;
+              aggregatedData[element].values.push({
+                category: entry[1].name,
+                time: entry[1].time,
+                value: entry[1].values[0],
+                fullDate: entry[1].fullDate,
+              });
+            }
+          }
+        });
+      });
+
+      Object.values(aggregatedData).forEach((val) => {
+        val.average = val.average / val.count;
+      });
+
+      return Object.values(aggregatedData);
+
+
+    },
+    calculateWeekMonth() {
+      var groups = [
+        "1",
+        "2",
+        "3",
+        "4",
+        "5",
+      ];
+      const groupedData = {};
+      const aggregatedData = [];
+      const parseTime = d3.timeParse("%b %e, %Y, %I:%M:%S %p");
+      this.displayedData.forEach((entry) => {
+        const date = parseTime(entry.date);
+        const month = date.getMonth();
+        const week = date.getWeek();
+        const year = date.getFullYear();
+        const key = `${week}-${year}`;
+        const day = 
+            new Intl.DateTimeFormat("en-US", { day: "numeric" }).format(
+              date
+        );
+
+        if (!groupedData[key]) {
+          groupedData[key] = {
+            name: Math.floor(day/7)+1,            
+            category: Math.floor(day/7)+1,
+            time: date,
+            values: [],
+            count: 0,
+            sum: 0,
+            fullDate: date,
+          };
+        }
+
+        groupedData[key].count += 1;
+        groupedData[key].sum += entry.value;
+      });
+
+      Object.values(groupedData).forEach((data) => {
+        const average = data.sum / data.count;
+        data.values.push(average);
+      });
+
+      groups.forEach((element) => {
+        Object.entries(groupedData).forEach((entry) => {
+          if (entry[1].name == element) {
+            console.log("hello")
+            if (!(element in aggregatedData)) {
+              aggregatedData[element] = {
+                name: element,
+                count: 1,
+                average: entry[1].values[0],
+                values: [
+                  {
+                    category: element.toString(),
+                    time: entry[1].time,
+                    value: entry[1].values[0],
+                    fullDate: entry[1].fullDate,
+                  },
+                ],
+              };
+            } else {
+              aggregatedData[element].average += entry[1].values[0];
+              aggregatedData[element].count += 1;
+              aggregatedData[element].values.push({
+                category: entry[1].name.toString(),
+                time: entry[1].time,
+                value: entry[1].values[0],
+                fullDate: entry[1].fullDate,
+              });
+            }
+          }
+        });
+      });
+
+      Object.values(aggregatedData).forEach((val) => {
+        val.average = val.average / val.count;
+      });
+
+      console.log(Object.values(aggregatedData))
+      return Object.values(aggregatedData);
+
+    },
+    calculateWeekYear() {
+      var groups = [
+        "1",
+        "2",
+        "3",
+        "4",
+        "5",
+        "6",
+        "7",
+        "8",
+        "9",
+        "10",
+        "11",
+        "12",
+        "13",
+        "14",
+        "15",
+        "16",
+        "17",
+        "18",
+        "19",
+        "20",
+        "21",
+        "22",
+        "23",
+        "24",
+        "25",
+        "26",
+        "27",
+        "28",
+        "29",
+        "30",
+        "31",
+        "32",
+        "33",
+        "34",
+        "35",
+        "36",
+        "37",
+        "38",
+        "39",
+        "40",
+        "41",
+        "42",
+        "43",
+        "44",
+        "45",
+        "46",
+        "47",
+        "49",
+        "50",
+        "51",
+        "52",
+        "53",
+      ];
+      const groupedData = {};
+      const aggregatedData = [];
+      const parseTime = d3.timeParse("%b %e, %Y, %I:%M:%S %p");
+      this.displayedData.forEach((entry) => {
+        const date = parseTime(entry.date);
+        const month = date.getMonth();
+        const week = date.getWeek();
+        const year = date.getFullYear();
+        const key = `${week}-${year}`;
+        const day = 
+            new Intl.DateTimeFormat("en-US", { day: "numeric" }).format(
+              date
+        );
+
+        if (!groupedData[key]) {
+          groupedData[key] = {
+            name: week,            
+            category: week,
+            time: date,
+            values: [],
+            count: 0,
+            sum: 0,
+            fullDate: date,
+          };
+        }
+
+        groupedData[key].count += 1;
+        groupedData[key].sum += entry.value;
+      });
+
+      Object.values(groupedData).forEach((data) => {
+        const average = data.sum / data.count;
+        data.values.push(average);
+      });
+
+      groups.forEach((element) => {
+        Object.entries(groupedData).forEach((entry) => {
+          if (entry[1].name == element) {
+            console.log("hello")
+            if (!(element in aggregatedData)) {
+              aggregatedData[element] = {
+                name: element,
+                count: 1,
+                average: entry[1].values[0],
+                values: [
+                  {
+                    category: element.toString(),
+                    time: entry[1].time,
+                    value: entry[1].values[0],
+                    fullDate: entry[1].fullDate,
+                  },
+                ],
+              };
+            } else {
+              aggregatedData[element].average += entry[1].values[0];
+              aggregatedData[element].count += 1;
+              aggregatedData[element].values.push({
+                category: entry[1].name.toString(),
+                time: entry[1].time,
+                value: entry[1].values[0],
+                fullDate: entry[1].fullDate,
+              });
+            }
+          }
+        });
+      });
+
+      Object.values(aggregatedData).forEach((val) => {
+        val.average = val.average / val.count;
+      });
+
+      console.log(Object.values(aggregatedData))
+      return Object.values(aggregatedData);
+
+    },
+
     calculateMonthYear() {
       //group data by months per year
       var groups = [
@@ -73,10 +500,10 @@ export default {
         const date = parseTime(entry.date);
         const month = date.getMonth();
         const year = date.getFullYear();
-        const monthYearKey = `${month}-${year}`;
+        const key = `${month}-${year}`;
 
-        if (!groupedData[monthYearKey]) {
-          groupedData[monthYearKey] = {
+        if (!groupedData[key]) {
+          groupedData[key] = {
             name: new Intl.DateTimeFormat("en-US", { month: "long" }).format(
               date
             ),
@@ -89,26 +516,26 @@ export default {
           };
         }
 
-        groupedData[monthYearKey].count += 1;
-        groupedData[monthYearKey].sum += entry.value;
+        groupedData[key].count += 1;
+        groupedData[key].sum += entry.value;
       });
 
-      Object.values(groupedData).forEach((monthData) => {
-        const average = monthData.sum / monthData.count;
-        monthData.values.push(average);
+      Object.values(groupedData).forEach((data) => {
+        const average = data.sum / data.count;
+        data.values.push(average);
       });
 
-      groups.forEach((month) => {
+      groups.forEach((element) => {
         Object.entries(groupedData).forEach((entry) => {
-          if (entry[1].name === month) {
-            if (!(month in aggregatedData)) {
-              aggregatedData[month] = {
-                name: month,
+          if (entry[1].name === element) {
+            if (!(element in aggregatedData)) {
+              aggregatedData[element] = {
+                name: element,
                 count: 1,
                 average: entry[1].values[0],
                 values: [
                   {
-                    category: month,
+                    category: element,
                     time: entry[1].time,
                     value: entry[1].values[0],
                     fullDate: entry[1].fullDate,
@@ -116,9 +543,9 @@ export default {
                 ],
               };
             } else {
-              aggregatedData[month].average += entry[1].values[0];
-              aggregatedData[month].count += 1;
-              aggregatedData[month].values.push({
+              aggregatedData[element].average += entry[1].values[0];
+              aggregatedData[element].count += 1;
+              aggregatedData[element].values.push({
                 category: entry[1].name,
                 time: entry[1].time,
                 value: entry[1].values[0],
@@ -160,7 +587,7 @@ export default {
           groupedData[key] = {
             name: day,
             category: groups[day],
-            time: week,
+            time: date,
             values: [],
             count: 0,
             sum: 0,
@@ -213,6 +640,7 @@ export default {
       Object.values(aggregatedData).forEach((val) => {
         val.average = val.average / val.count;
       });
+      console.log(Object.values(aggregatedData));
       return Object.values(aggregatedData);
     },
     groupData() {
@@ -223,6 +651,22 @@ export default {
           break;
         case "Days-per-Week":
           this.aggregatedData = this.calculateDayWeek();
+          this.createCyclePlot();
+          break;
+        case "Hours-per-Day":
+          this.aggregatedData = this.calculateHourDay();
+          this.createCyclePlot();
+          break;
+        case "Days-per-Month":
+          this.aggregatedData = this.calculateDayMonth();
+          this.createCyclePlot();
+          break;
+        case "Weeks-per-Month":
+          this.aggregatedData = this.calculateWeekMonth();
+          this.createCyclePlot();
+          break;
+        case "Weeks-per-Year":
+          this.aggregatedData = this.calculateWeekYear();
           this.createCyclePlot();
           break;
         default:
@@ -261,11 +705,14 @@ export default {
           ),
         ]);
       svg.append("g").call(d3.axisLeft(y));
-      console.log(this.aggregatedData);
-      const dynamicWidth =
-        this.aggregatedData[0].values.length * 8 < this.width
+      var dynamicWidth =
+        this.aggregatedData[0].values.length * this.aggregatedData.length * 3< this.width
           ? this.width
-          : this.aggregatedData[0].values.length * 8;
+          : (this.aggregatedData[0].values.length) * (this.aggregatedData.length*3);
+      while((dynamicWidth /this.aggregatedData.length -r *2) < 142 ) {
+        console.log(dynamicWidth)
+        dynamicWidth += 100;
+      }
       const xx = d3
         .scaleLinear()
         .range([r * 2, dynamicWidth / this.aggregatedData.length - r * 2])
@@ -393,7 +840,7 @@ export default {
         this.$emit("highlightedData", event.target.__data__);
       });
 
-      const zoom = d3.zoom().scaleExtent([1, 2]).on("zoom", zoomed);
+      const zoom = d3.zoom().scaleExtent([1, 1]).on("zoom", zoomed);
 
       const self = this;
       function zoomed({ transform }) {

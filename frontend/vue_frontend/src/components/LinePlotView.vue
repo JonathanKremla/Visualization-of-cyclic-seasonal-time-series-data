@@ -97,7 +97,6 @@ export default {
         this.currentGranularity = newGranularity;
     },
     renderGraph() {
-      console.log(this.highlightedData)
       d3.select(this.$refs.linePlot).selectAll("*").remove();
       const width = 800;
       const height = 500;
@@ -165,7 +164,6 @@ export default {
 
       //draw highlighted points
       if (this.highlightedData) {
-        console.log(this.highlightedData.values)
         g
           .selectAll("points")
           .data(this.highlightedData.values)
