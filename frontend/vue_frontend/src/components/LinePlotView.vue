@@ -5,6 +5,27 @@
 </template>
 
 <script>
+// Source: https://weeknumber.com/how-to/javascript
+
+// Returns the ISO week of the date.
+Date.prototype.getWeek = function () {
+  var date = new Date(this.getTime());
+  date.setHours(0, 0, 0, 0);
+  // Thursday in current week decides the year.
+  date.setDate(date.getDate() + 3 - ((date.getDay() + 6) % 7));
+  // January 4 is always in week 1.
+  var week1 = new Date(date.getFullYear(), 0, 4);
+  // Adjust to Thursday in week 1 and count number of weeks from date to week1.
+  return (
+    1 +
+    Math.round(
+      ((date.getTime() - week1.getTime()) / 86400000 -
+        3 +
+        ((week1.getDay() + 6) % 7)) /
+        7
+    )
+  );
+};
 import * as d3 from "d3";
 
 export default {
@@ -65,7 +86,39 @@ export default {
           val.value = val.value / val.count;
         });
         this.data = Object.values(aggregatedData);
+        console.log(this.data)
         this.renderGraph();
+      }
+      if(newGranularity == "Weeks") {
+        const parseTime = d3.timeParse("%b %e, %Y, %I:%M:%S %p");
+        const aggregatedData = [];
+        this.displayedData.forEach((el) => {
+          var year = new Date(el.date).toLocaleDateString("default", {
+            year: "numeric",
+          });
+          var week = parseTime(el.date).getWeek() + year;
+          if (!aggregatedData[week]) {
+            // If not, initialize it with the current value
+            aggregatedData[week] = {
+              date: el.date,
+              value: el.value,
+              count: 1,
+            };
+          } else {
+            // If it exists, add the current value to the existing value
+            aggregatedData[week].value += el.value;
+            aggregatedData[week].count += 1;
+          }
+        });
+        Object.values(aggregatedData).forEach((val) => {
+          val.value = val.value / val.count;
+        });
+        this.data = Object.values(aggregatedData);
+        this.data.sort((a, b) => {
+          return new Date(a.date) - new Date(b.date);
+        });
+        this.renderGraph();
+
       }
       if (newGranularity == "Days") {
         const aggregatedData = [];

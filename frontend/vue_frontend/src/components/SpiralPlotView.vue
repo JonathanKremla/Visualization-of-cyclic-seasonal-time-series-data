@@ -3,14 +3,30 @@
     <h3>Options:</h3>
     <div class="text-caption">Segments per Cycle</div>
     <v-container>
-      <v-slider aria-label="Segments per Cycle" step="1" v-model="this.segmentsPerCycle" :max="this.displayedData.length"
-        :disabled="this.recommendedSeg" min="1" thumb-label="always">
+      <v-slider
+        aria-label="Segments per Cycle"
+        step="1"
+        v-model="this.segmentsPerCycle"
+        :max="this.displayedData.length"
+        :disabled="this.recommendedSeg"
+        min="1"
+        thumb-label="always"
+      >
         <template v-slot:append>
-          <v-text-field v-model="this.segmentsPerCycle" hide-details single-line density="compact" type="number"
-            style="width: 100px"></v-text-field>
+          <v-text-field
+            v-model="this.segmentsPerCycle"
+            hide-details
+            single-line
+            density="compact"
+            type="number"
+            style="width: 100px"
+          ></v-text-field>
         </template>
       </v-slider>
-      <v-checkbox label="Use recommended segments per cycle" v-model="this.recommendedSeg"></v-checkbox>
+      <v-checkbox
+        label="Use recommended segments per cycle"
+        v-model="this.recommendedSeg"
+      ></v-checkbox>
     </v-container>
     <div>
       <v-card flat>
@@ -18,28 +34,58 @@
           <v-container fluid>
             <v-row>
               <v-col>
-                <v-switch label="Highlight start of each year" v-model="this.options.yearHighlight" :disabled="this.options.granularity == 'Hours' ||
-                  this.baseGranularity == 'Hours'
-                  " color="primary"></v-switch>
-                <v-switch label="Display text for year" v-model="this.options.yearText" :disabled="this.options.granularity == 'Hours' ||
-                  this.baseGranularity == 'Hours'
-                  " color="primary"></v-switch>
+                <v-switch
+                  label="Highlight start of each year"
+                  v-model="this.options.yearHighlight"
+                  :disabled="
+                    this.options.granularity == 'Hours' ||
+                    this.baseGranularity == 'Hours'
+                  "
+                  color="primary"
+                ></v-switch>
+                <v-switch
+                  label="Display text for year"
+                  v-model="this.options.yearText"
+                  :disabled="
+                    this.options.granularity == 'Hours' ||
+                    this.baseGranularity == 'Hours'
+                  "
+                  color="primary"
+                ></v-switch>
               </v-col>
               <v-col>
-                <v-switch label="Highlight start of each month" v-model="this.options.monthHighlight"
-                  :disabled="this.options.granularity == 'Months'" color="primary"></v-switch>
-                <v-switch label="Display text for month" v-model="this.options.monthText"
-                  :disabled="this.options.granularity == 'Months'" color="primary"></v-switch>
+                <v-switch
+                  label="Highlight start of each month"
+                  v-model="this.options.monthHighlight"
+                  :disabled="this.options.granularity == 'Months'"
+                  color="primary"
+                ></v-switch>
+                <v-switch
+                  label="Display text for month"
+                  v-model="this.options.monthText"
+                  :disabled="this.options.granularity == 'Months'"
+                  color="primary"
+                ></v-switch>
               </v-col>
               <v-col>
-                <v-switch label="Highlight start of each day" v-model="this.options.dayHighlight"
-                  :disabled="this.options.granularity != 'Hours'" color="primary"></v-switch>
+                <v-switch
+                  label="Highlight start of each day"
+                  v-model="this.options.dayHighlight"
+                  :disabled="this.options.granularity != 'Hours'"
+                  color="primary"
+                ></v-switch>
               </v-col>
               <v-col>
-                <v-select label="Select color scheme" :items="['Cividis', 'Viridis', 'Inferno', 'Magma', 'Plasma']"
-                  v-model="this.options.colorScheme"></v-select>
-                <v-select label="Select granularity" :items="this.options.granularityItems"
-                  v-model="this.options.granularity">
+                <v-select
+                  label="Select color scheme"
+                  :items="['Cividis', 'Viridis', 'Inferno', 'Magma', 'Plasma']"
+                  v-model="this.options.colorScheme"
+                ></v-select>
+                <v-select
+                  label="Select granularity"
+                  :items="this.options.granularityItems"
+                  v-model="this.options.granularity"
+                >
                 </v-select>
               </v-col>
             </v-row>
@@ -458,6 +504,11 @@ export default {
 
     renderGraph() {
       d3.select(this.$refs.spiralPlot).selectAll("*").remove();
+      var infoBox = d3
+        .select("body")
+        .append("div")
+        .attr("class", "infoBox")
+        .style("opacity", 0);
       var c = `d3.interpolate${this.options.colorScheme}`;
       var color = d3.scaleSequential(eval(c));
       var radians = this.spiralPlotConstants.radians;
@@ -477,10 +528,10 @@ export default {
         .attr(
           "transform",
           "translate(" +
-          (this.margin.left + this.spiralPlotConstants.radius) +
-          "," +
-          (this.margin.top + this.spiralPlotConstants.radius) +
-          ")"
+            (this.margin.left + this.spiralPlotConstants.radius) +
+            "," +
+            (this.margin.top + this.spiralPlotConstants.radius) +
+            ")"
         );
 
       const x = function (angle, radius) {
@@ -525,11 +576,11 @@ export default {
           this.spiralPlotConstants.cyclePadding +
           this.spiralPlotConstants.innerRadius +
           ((i + 1) / this.segmentsPerCycle) *
-          this.spiralPlotConstants.segmentWidth;
+            this.spiralPlotConstants.segmentWidth;
         var endOuterRadius =
           this.spiralPlotConstants.innerRadius +
           ((i + 1) / this.segmentsPerCycle) *
-          this.spiralPlotConstants.segmentWidth +
+            this.spiralPlotConstants.segmentWidth +
           this.spiralPlotConstants.segmentWidth;
 
         //console.log("Radi: " + startInnerRadius + ", " + startOuterRadius + ", " + endInnerRadius + ", " + endOuterRadius)
@@ -551,11 +602,11 @@ export default {
           this.spiralPlotConstants.innerRadius +
           this.spiralPlotConstants.cyclePadding +
           ((i + 0.5) / this.segmentsPerCycle) *
-          this.spiralPlotConstants.segmentWidth;
+            this.spiralPlotConstants.segmentWidth;
         let midOuterRadius =
           this.spiralPlotConstants.innerRadius +
           ((i + 0.5) / this.segmentsPerCycle) *
-          this.spiralPlotConstants.segmentWidth +
+            this.spiralPlotConstants.segmentWidth +
           this.spiralPlotConstants.segmentWidth;
 
         d.mid1x = x(midAngle, midInnerRadius);
@@ -605,6 +656,15 @@ export default {
         })
         .style("fill", function (d) {
           return color(d.value);
+        })
+        .on("mouseover", function (d, i) {
+          d3.select(this).transition().duration("50").attr("opacity", ".5");
+        })
+        .on("mouseout", function (d, i) {
+          d3.select(this).transition().duration("50").attr("opacity", "1");
+        })
+        .on("click", function (event) {
+          d3.select(this).append("rect")
         });
 
       var yearStarts = arcs
@@ -626,25 +686,26 @@ export default {
         .select(this.$refs.legend)
         .attr("class", "legend")
         .attr("width", legendWidth)
-        .attr("height", legendHeight * 2)
+        .attr("height", legendHeight * 2);
 
-      var lg = legend.append("g")
-
+      var lg = legend.append("g");
 
       var colorRange = [];
       for (let index = dataExtent[0]; index < dataExtent[1]; index++) {
         colorRange.push(color(index));
       }
 
-      const colorScale = d3.scaleLinear()
-        .domain(d3.extent(this.data, function(d) {
-          return d.value
-        }))
-        .range([0,legendWidth])
+      const colorScale = d3
+        .scaleLinear()
+        .domain(
+          d3.extent(this.data, function (d) {
+            return d.value;
+          })
+        )
+        .range([0, legendWidth]);
 
       // Create linear gradient
-      lg
-        .append("defs")
+      lg.append("defs")
         .append("linearGradient")
         .attr("id", "colorGradient")
         .attr("x1", "0%")
@@ -663,8 +724,7 @@ export default {
         });
 
       // Create legend rectangle with gradient
-      lg
-        .append("rect")
+      lg.append("rect")
         .attr("width", legendWidth)
         .attr("height", legendHeight)
         .style("fill", "url(#colorGradient)");
@@ -675,8 +735,7 @@ export default {
         .domain(dataExtent)
         .range([0, legendWidth]);
 
-      lg
-        .selectAll(".tick")
+      lg.selectAll(".tick")
         .data(tickValues)
         .enter()
         .append("line")
@@ -691,8 +750,7 @@ export default {
         .attr("y2", legendHeight + 5);
 
       // Add tick labels
-      lg
-        .selectAll(".tick-label")
+      lg.selectAll(".tick-label")
         .data(tickValues)
         .enter()
         .append("text")
@@ -706,8 +764,8 @@ export default {
         });
 
       // Add brush for legend
-      const brush = d3.brushX().on("brush", brushed)
-      lg.append("g").attr("transform", "scale(1, 0.5)").call(brush)
+      const brush = d3.brushX().on("brush", brushed);
+      lg.append("g").attr("transform", "scale(1, 0.5)").call(brush);
       const self = this;
 
       function brushed({ selection }) {
@@ -741,15 +799,22 @@ export default {
               return start + " " + side1 + " " + side2 + " " + side3 + " Z";
             })
             .style("fill", function (d) {
-              if(d.value < colorScale.invert(selection[0]) || d.value > colorScale.invert(selection[1])) {
-                return "white"
+              if (
+                d.value < colorScale.invert(selection[0]) ||
+                d.value > colorScale.invert(selection[1])
+              ) {
+                return "white";
               }
               return color(d.value);
             });
-
         }, 300);
       }
+      const zoom = d3.zoom().scaleExtent([1, 5]).on("zoom", zoomed);
 
+      function zoomed({ transform }) {
+        g.attr("transform", transform);
+      }
+      svg.call(zoom);
     },
   },
 };

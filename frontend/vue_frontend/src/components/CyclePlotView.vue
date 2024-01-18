@@ -309,7 +309,6 @@ export default {
       groups.forEach((element) => {
         Object.entries(groupedData).forEach((entry) => {
           if (entry[1].name == element) {
-            console.log("hello")
             if (!(element in aggregatedData)) {
               aggregatedData[element] = {
                 name: element,
@@ -342,7 +341,6 @@ export default {
         val.average = val.average / val.count;
       });
 
-      console.log(Object.values(aggregatedData))
       return Object.values(aggregatedData);
 
     },
@@ -439,7 +437,6 @@ export default {
       groups.forEach((element) => {
         Object.entries(groupedData).forEach((entry) => {
           if (entry[1].name == element) {
-            console.log("hello")
             if (!(element in aggregatedData)) {
               aggregatedData[element] = {
                 name: element,
@@ -472,7 +469,6 @@ export default {
         val.average = val.average / val.count;
       });
 
-      console.log(Object.values(aggregatedData))
       return Object.values(aggregatedData);
 
     },
@@ -640,7 +636,6 @@ export default {
       Object.values(aggregatedData).forEach((val) => {
         val.average = val.average / val.count;
       });
-      console.log(Object.values(aggregatedData));
       return Object.values(aggregatedData);
     },
     groupData() {
@@ -710,7 +705,6 @@ export default {
           ? this.width
           : (this.aggregatedData[0].values.length) * (this.aggregatedData.length*3);
       while((dynamicWidth /this.aggregatedData.length -r *2) < 142 ) {
-        console.log(dynamicWidth)
         dynamicWidth += 100;
       }
       const xx = d3
