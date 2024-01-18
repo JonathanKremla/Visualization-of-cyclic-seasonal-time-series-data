@@ -17,16 +17,25 @@ export default {
     return {
       data: null,
       dataSize: 0,
-      selectedGranularity: null,
+      currentGranularity: null,
     };
   },
   watch: {
-    displayedData: "renderGraph",
+    displayedData: "updateData",
     highlightedData: "renderGraph",
     updatedGranularity: "updateGranularity",
   },
   mounted() { },
   methods: {
+    updateData() {
+      //aggregate new data according to selected granularity
+      if(this.currentGranularity) {
+        this.updateGranularity(this.currentGranularity);
+      } else {
+        this.renderGraph();
+      }
+
+    },
     updateGranularity(newGranularity) {
       if (newGranularity == "Hours") {
         this.data = this.displayedData;
@@ -85,8 +94,10 @@ export default {
         this.data = Object.values(aggregatedData);
         this.renderGraph();
       }
+        this.currentGranularity = newGranularity;
     },
     renderGraph() {
+      console.log(this.highlightedData)
       d3.select(this.$refs.linePlot).selectAll("*").remove();
       const width = 800;
       const height = 500;

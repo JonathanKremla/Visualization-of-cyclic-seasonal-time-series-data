@@ -85,6 +85,7 @@ export default {
             values: [],
             count: 0,
             sum: 0,
+            fullDate: date,
           };
         }
 
@@ -110,6 +111,7 @@ export default {
                     category: month,
                     time: entry[1].time,
                     value: entry[1].values[0],
+                    fullDate: entry[1].fullDate,
                   },
                 ],
               };
@@ -120,6 +122,7 @@ export default {
                 category: entry[1].name,
                 time: entry[1].time,
                 value: entry[1].values[0],
+                fullDate: entry[1].fullDate,
               });
             }
           }
@@ -394,10 +397,8 @@ export default {
 
       const self = this;
       function zoomed({ transform }) {
-        if (dynamicWidth != self.width) {
-          transform.y = self.margin.top;
-          d3.select(".zoomContainer").attr("transform", transform);
-        }
+        transform.y = self.margin.top;
+        d3.select(".zoomContainer").attr("transform", transform);
       }
       svg.call(zoom);
     },

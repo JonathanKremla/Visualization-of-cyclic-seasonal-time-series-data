@@ -62,6 +62,7 @@ export default {
   },
   watch: {
     displayedRange: "sliceData",
+    selectedGranularity: "resetHighlighting"
   },
   computed: {},
   mounted() {
@@ -69,6 +70,9 @@ export default {
     this.checkGranularity();
   },
   methods: {
+    resetHighlighting() {
+      this.highlightedData = null;
+    },
     updateData(selectedData) {
       this.displayedDataCycle = selectedData;
     },
