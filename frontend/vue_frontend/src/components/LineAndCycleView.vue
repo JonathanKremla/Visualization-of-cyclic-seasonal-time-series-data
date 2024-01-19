@@ -21,11 +21,30 @@
     </LinePlotView>
 
     <h2>Cycle Plot</h2>
-    <v-select
-      v-model="this.selectedGranularity"
-      label="Select Granularity:"
-      :items="['Months-per-Year', 'Days-per-Week', 'Hours-per-Day', 'Days-per-Month', 'Weeks-per-Month', 'Weeks-per-Year']"
-    ></v-select>
+
+    <v-card>
+      <v-card-text>
+        <v-container>
+          <v-row>
+            <v-col>
+              <v-select
+                v-model="this.firstGranularity"
+                label="Select First Granularity:"
+                :items="this.firstGranItems"
+              ></v-select>
+            </v-col>
+            <v-col>
+              <v-select
+                v-model="this.secondGranularity"
+                :disabled = "!this.firstGranularity"
+                label="Select Second Granularity:"
+                :items="this.secondGranItems"
+              ></v-select>
+            </v-col>
+          </v-row>
+        </v-container>
+      </v-card-text>
+    </v-card>
 
     <CyclePlotView
       v-if="this.displayedData"
@@ -49,6 +68,10 @@ export default {
   data() {
     return {
       ticks: {},
+      firstGranItems: undefined,
+      secondGranItems: undefined,
+      firstGranularity: undefined,
+      secondGranularity: undefined,
       displayedRange: [0, 0],
       data: null,
       displayedData: null,
@@ -62,7 +85,9 @@ export default {
   },
   watch: {
     displayedRange: "sliceData",
-    selectedGranularity: "resetHighlighting"
+    selectedGranularity: "resetHighlighting",
+    firstGranularity: "setSecondGranularityOptions",
+    secondGranularity: "setGranularity",
   },
   computed: {},
   mounted() {
@@ -70,13 +95,38 @@ export default {
     this.checkGranularity();
   },
   methods: {
+    setGranularity() {
+      this.selectedGranularity = this.firstGranularity + "-per-" + this.secondGranularity;
+    },
+    setSecondGranularityOptions() {
+      switch (this.firstGranularity) {
+        case "Hours":
+          this.secondGranItems = ["Day"]
+          break;
+        case "Days":
+          this.secondGranItems = ["Week","Month"]
+          break;
+        case "Weeks":
+          this.secondGranItems = ["Month","Year"]
+          break;
+        case "Months":
+          this.secondGranItems = ["Year"]
+          break;
+        default:
+          break;
+      }
+      if(this.secondGranularity) {
+        this.selectedGranularity = undefined;
+        this.secondGranularity = undefined;
+      }
+    },
     resetHighlighting() {
       this.highlightedData = null;
     },
     updateData(selectedData) {
       this.displayedDataCycle = selectedData;
     },
-    highlightData(highlightedData){
+    highlightData(highlightedData) {
       this.highlightedData = highlightedData;
     },
     checkGranularity() {
@@ -104,9 +154,11 @@ export default {
       switch (average) {
         case 1:
           this.granularity = "Days";
+          this.firstGranItems = ["Days", "Weeks", "Months"]
           break;
         case 24:
           this.granularity = "Hours";
+          this.firstGranItems = ["Hours", "Days", "Weeks", "Months"]
           break;
         default:
           console.error("Unknown granularity or too many missing values");

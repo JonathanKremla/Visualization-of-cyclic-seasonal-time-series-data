@@ -665,6 +665,7 @@ export default {
           this.createCyclePlot();
           break;
         default:
+          d3.select(this.$refs.cyclePlot).selectAll("*").remove()
           break;
       }
     },
