@@ -2,7 +2,7 @@
   <v-range-slider
     v-if="this.max"
     v-model="this.displayedRange"
-    :step=this.steps
+    :step="this.steps"
     show-ticks="always"
     :ticks="this.ticks"
     :max="this.max"
@@ -37,7 +37,7 @@ export default {
     },
     calculateTicks() {
       if (this.granularity === "Days") {
-        this.steps=30;
+        this.steps = 30;
         const uniqueMonths = [
           ...new Set(this.data.map((item) => new Date(item.date).getMonth())),
         ];
@@ -46,20 +46,20 @@ export default {
             this.data.map((item) => new Date(item.date).getFullYear())
           ),
         ];
-      var counter = 0;
-      for (let index = 0; index < uniqueYears.length; index++) {
-        uniqueMonths.forEach((val) => {
-          if (val === 0) {
-            this.ticks[counter * 30] = uniqueYears[index];
-          } else {
-            this.ticks[counter * 30] = "";
-          }
-          counter += 1;
-        });
-      }
+        var counter = 0;
+        for (let index = 0; index < uniqueYears.length; index++) {
+          uniqueMonths.forEach((val) => {
+            if (val === 0) {
+              this.ticks[counter * 30] = uniqueYears[index];
+            } else {
+              this.ticks[counter * 30] = "";
+            }
+            counter += 1;
+          });
+        }
       }
       if (this.granularity === "Hours") {
-        this.steps = 24
+        this.steps = 24;
         const uniqueMonths = [
           ...new Set(
             this.data.map((item) =>

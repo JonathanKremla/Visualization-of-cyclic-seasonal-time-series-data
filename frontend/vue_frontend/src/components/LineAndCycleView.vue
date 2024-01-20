@@ -5,7 +5,9 @@
     </router-link>
     <CustomRangeSlider
       v-if="this.dataSize"
+      v-model="this.displayedDataRange"
       :data="this.data"
+      :displayedData="this.displayedData"
       :max="this.dataSize"
       :granularity="this.granularity"
       v-on:updatedRange="updateRange"
@@ -36,7 +38,7 @@
             <v-col>
               <v-select
                 v-model="this.secondGranularity"
-                :disabled = "!this.firstGranularity"
+                :disabled="!this.firstGranularity"
                 label="Select Second Granularity:"
                 :items="this.secondGranItems"
               ></v-select>
@@ -48,11 +50,7 @@
 
     <CyclePlotView
       v-if="this.displayedData"
-      :displayedData="
-        this.displayedDataCycle == null
-          ? this.displayedData
-          : this.displayedDataCycle
-      "
+      :displayedData="this.displayedData"
       :granularity="this.selectedGranularity"
       v-on:highlightedData="this.highlightData"
     ></CyclePlotView>
@@ -75,6 +73,7 @@ export default {
       displayedRange: [0, 0],
       data: null,
       displayedData: null,
+      displayedDataRange: null,
       displayedDataCycle: null,
       selectedData: null,
       dataSize: 0,
@@ -89,33 +88,33 @@ export default {
     firstGranularity: "setSecondGranularityOptions",
     secondGranularity: "setGranularity",
   },
-  computed: {},
   mounted() {
     this.retrieveData();
     this.checkGranularity();
   },
   methods: {
     setGranularity() {
-      this.selectedGranularity = this.firstGranularity + "-per-" + this.secondGranularity;
+      this.selectedGranularity =
+        this.firstGranularity + "-per-" + this.secondGranularity;
     },
     setSecondGranularityOptions() {
       switch (this.firstGranularity) {
         case "Hours":
-          this.secondGranItems = ["Day"]
+          this.secondGranItems = ["Day"];
           break;
         case "Days":
-          this.secondGranItems = ["Week","Month"]
+          this.secondGranItems = ["Week", "Month"];
           break;
         case "Weeks":
-          this.secondGranItems = ["Month","Year"]
+          this.secondGranItems = ["Month", "Year"];
           break;
         case "Months":
-          this.secondGranItems = ["Year"]
+          this.secondGranItems = ["Year"];
           break;
         default:
           break;
       }
-      if(this.secondGranularity) {
+      if (this.secondGranularity) {
         this.selectedGranularity = undefined;
         this.secondGranularity = undefined;
       }
@@ -124,7 +123,16 @@ export default {
       this.highlightedData = null;
     },
     updateData(selectedData) {
-      this.displayedDataCycle = selectedData;
+      this.displayedData = selectedData;
+      this.displayedDataRange = [
+        this.data.findIndex((el) => el.date == selectedData[0].date),
+        this.data.findIndex(
+          (el) => el.date == selectedData[selectedData.length - 1].date
+        ),
+      ];
+      console.log(this.displayedDataRange)
+      console.log(selectedData)
+      console.log(this.data)
     },
     highlightData(highlightedData) {
       this.highlightedData = highlightedData;
@@ -154,11 +162,11 @@ export default {
       switch (average) {
         case 1:
           this.granularity = "Days";
-          this.firstGranItems = ["Days", "Weeks", "Months"]
+          this.firstGranItems = ["Days", "Weeks", "Months"];
           break;
         case 24:
           this.granularity = "Hours";
-          this.firstGranItems = ["Hours", "Days", "Weeks", "Months"]
+          this.firstGranItems = ["Hours", "Days", "Weeks", "Months"];
           break;
         default:
           console.error("Unknown granularity or too many missing values");
@@ -185,6 +193,24 @@ export default {
         // Retrieve JSON string from local storage and parse it to a JavaScript object
         const jsonData = localStorage.getItem("data");
         const parsedData = JSON.parse(JSON.parse(jsonData));
+        var tempDate;
+        if (Object.keys(parsedData)[0].split(" ")[1] == undefined) {
+          this.data = Object.entries(parsedData).map(([date, value]) => ({
+            date: (() => {
+              var d = new Date(date)
+              d.setHours(0)
+              return d.toLocaleDateString("en-US", {
+                hour: "numeric",
+                minute: "numeric",
+                second: "numeric",
+                day: "numeric",
+                month: "short",
+                year: "numeric",
+              });
+            })(),
+            value: parseFloat(value),
+          }));
+        } else {
         this.data = Object.entries(parsedData).map(([date, value]) => ({
           date: new Date(date).toLocaleDateString("en-US", {
             hour: "numeric",
@@ -196,9 +222,11 @@ export default {
           }),
           value: parseFloat(value),
         }));
+        }
         this.displayedData = this.data;
         this.dataSize = this.data.length;
         this.displayedRange = [0, this.dataSize];
+        this.displayedDataRange = [0, this.dataSize];
       } catch (error) {
         console.error("Error retrieving data from local storage:", error);
       }

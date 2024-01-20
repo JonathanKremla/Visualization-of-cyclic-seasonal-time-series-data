@@ -239,6 +239,9 @@ export default {
 
       const self = this;
       function brushed({ selection }) {
+        clearTimeout(this.watcherTimeout);
+        // Set a new timeout to debounce the watcher function after 300 milliseconds of inactivity
+        this.watcherTimeout = setTimeout(() => {
         if (selection) {
           self.$emit(
             "selectedData",
@@ -248,6 +251,7 @@ export default {
             )
           );
         }
+        }, 150);
       }
     },
   },

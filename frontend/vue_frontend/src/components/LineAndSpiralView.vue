@@ -5,6 +5,7 @@
     </router-link>
     <CustomRangeSlider 
     v-if="this.dataSize"
+    v-model="this.displayedDataRange"
     :data="this.data"
     :max="this.dataSize"
     :granularity="this.granularity"
@@ -42,6 +43,7 @@ export default {
       displayedRange: [0, 0],
       data: null,
       displayedData: null,
+      displayedDataRange: [0,0],
       dataSize: 0,
       granularity: undefined,
       updatedGranularity: undefined,
@@ -58,8 +60,17 @@ export default {
     this.checkGranularity();
   },
   methods: {
-    updateData(data) {
-      this.selectedData = data;
+    updateData(selectedData) {
+      this.displayedData = selectedData;
+      this.displayedDataRange = [
+        this.data.findIndex((el) => el.date == selectedData[0].date),
+        this.data.findIndex(
+          (el) => el.date == selectedData[selectedData.length - 1].date
+        ),
+      ];
+      console.log(this.displayedDataRange)
+      console.log(selectedData)
+      console.log(this.data)
     },
     updateGranularity(newGranularity) {
       this.updatedGranularity = newGranularity;
@@ -118,6 +129,24 @@ export default {
         // Retrieve JSON string from local storage and parse it to a JavaScript object
         const jsonData = localStorage.getItem("data");
         const parsedData = JSON.parse(JSON.parse(jsonData));
+        var tempDate;
+        if (Object.keys(parsedData)[0].split(" ")[1] == undefined) {
+          this.data = Object.entries(parsedData).map(([date, value]) => ({
+            date: (() => {
+              var d = new Date(date)
+              d.setHours(0)
+              return d.toLocaleDateString("en-US", {
+                hour: "numeric",
+                minute: "numeric",
+                second: "numeric",
+                day: "numeric",
+                month: "short",
+                year: "numeric",
+              });
+            })(),
+            value: parseFloat(value),
+          }));
+        } else {
         this.data = Object.entries(parsedData).map(([date, value]) => ({
           date: new Date(date).toLocaleDateString("en-US", {
             hour: "numeric",
@@ -129,9 +158,11 @@ export default {
           }),
           value: parseFloat(value),
         }));
+        }
         this.displayedData = this.data;
         this.dataSize = this.data.length;
         this.displayedRange = [0, this.dataSize];
+        this.displayedDataRange = [0, this.dataSize];
       } catch (error) {
         console.error("Error retrieving data from local storage:", error);
       }
