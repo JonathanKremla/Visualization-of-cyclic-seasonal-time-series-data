@@ -3,6 +3,7 @@ import ManageData from '../components/ManageData.vue'
 import LineAndCycleView from '../components/LineAndCycleView.vue'
 import LineAndSpiralPlotView from '../components/LineAndSpiralView.vue'
 import CycleAndSpiralView from '../components/CycleAndSpiralView.vue'
+import AllView from '../components/AllView.vue'
 
 
 const router = createRouter({
@@ -27,7 +28,13 @@ const router = createRouter({
       path: '/lineAndSpiralPlot',
       name: 'SpiralPlot',
       component: LineAndSpiralPlotView
-    }
+    },
+    {
+      path: '/allViews',
+      name: 'AllView',
+      component: AllView
+    },
+
   ]
 })
 

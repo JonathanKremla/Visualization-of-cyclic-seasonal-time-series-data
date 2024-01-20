@@ -25,6 +25,9 @@
       <router-link to="/cycleAndSpiralPlot">
         <v-btn>Display data as cycle plot and spiral plot</v-btn>
       </router-link>
+      <router-link to="/allViews">
+        <v-btn>Display data in all plots</v-btn>
+      </router-link>
     </div>
   </div>
 </template>
