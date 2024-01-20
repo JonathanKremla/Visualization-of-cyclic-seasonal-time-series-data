@@ -105,6 +105,7 @@ export default {
   props: {
     displayedData: Object,
     baseGranularity: String,
+    selectedGranularity: String,
   },
   data() {
     return {
@@ -162,12 +163,17 @@ export default {
       },
     },
     recommendedSeg: "setDefaultSegmentsPerCycle",
+    selectedGranularity: "updateSelectedGranularity"
   },
   mounted() {
     this.setGranularities();
     this.setDefaultSegmentsPerCycle();
   },
   methods: {
+    updateSelectedGranularity(newGranularity) {
+      this.options.granularity = newGranularity;
+
+    },
     sendUpdatdGranularity() {
       this.$emit("updateGranularity", this.options.granularity);
     },

@@ -12,17 +12,7 @@
       :granularity="this.granularity"
       v-on:updatedRange="updateRange"
     ></CustomRangeSlider>
-    <h2>Line Plot</h2>
-    <LinePlotView
-      v-if="this.displayedData"
-      :displayedData="this.displayedData"
-      :updatedGranularity="this.selectedGranularity.split('-')[0]"
-      :highlightedData="this.highlightedData"
-      v-on:selectedData="this.updateData"
-    >
-    </LinePlotView>
-
-    <h2>Cycle Plot</h2>
+    <h2>Cylce Plot</h2>
 
     <v-card>
       <v-card-text>
@@ -54,15 +44,26 @@
       :granularity="this.selectedGranularity"
       v-on:highlightedData="this.highlightData"
     ></CyclePlotView>
+    <h2>Spiral Plot</h2>
+    <div>
+      <SpiralPlotView
+        v-if="this.displayedData"
+        :baseGranularity="this.granularity"
+        :selectedGranularity = "this.firstGranularity"
+        :displayedData="
+          this.selectedData ? this.selectedData : this.displayedData
+        "
+        v-on:updateGranularity="updateGranularity"
+      ></SpiralPlotView>
+    </div>
   </div>
 </template>
-
 <script>
-import LinePlotView from "./LinePlotView.vue";
+import CustomRangeSlider from './CustomRangeSlider.vue';
 import CyclePlotView from "./CyclePlotView.vue";
-import CustomRangeSlider from "./CustomRangeSlider.vue";
+import SpiralPlotView from "./SpiralPlotView.vue";
 export default {
-  components: { LinePlotView, CyclePlotView, CustomRangeSlider },
+  components: { SpiralPlotView, CyclePlotView, CustomRangeSlider },
   data() {
     return {
       firstGranItems: undefined,
@@ -92,6 +93,9 @@ export default {
     this.checkGranularity();
   },
   methods: {
+    updateGranularity(newGranularity) {
+        this.firstGranularity = newGranularity;
+    },
     setGranularity() {
       this.selectedGranularity =
         this.firstGranularity + "-per-" + this.secondGranularity;
@@ -231,5 +235,6 @@ export default {
       }
     },
   },
-};
+
+}
 </script>

@@ -2,6 +2,7 @@ import { createRouter, createWebHistory } from 'vue-router'
 import ManageData from '../components/ManageData.vue'
 import LineAndCycleView from '../components/LineAndCycleView.vue'
 import LineAndSpiralPlotView from '../components/LineAndSpiralView.vue'
+import CycleAndSpiralView from '../components/CycleAndSpiralView.vue'
 
 
 const router = createRouter({
@@ -16,6 +17,11 @@ const router = createRouter({
       path: '/lineAndCyclePlot', 
       name: 'LinePlot',
       component: LineAndCycleView
+    },      
+    {
+      path: '/cycleAndSpiralPlot', 
+      name: 'LinePlot',
+      component: CycleAndSpiralView
     },      
     {
       path: '/lineAndSpiralPlot',

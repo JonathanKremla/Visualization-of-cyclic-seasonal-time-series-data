@@ -22,6 +22,9 @@
       <router-link to="/lineAndSpiralPlot">
         <v-btn>Display data as line plot and spiral plot</v-btn>
       </router-link>
+      <router-link to="/cycleAndSpiralPlot">
+        <v-btn>Display data as cycle plot and spiral plot</v-btn>
+      </router-link>
     </div>
   </div>
 </template>
@@ -44,8 +47,11 @@ export default {
       axios
         .get(path)
         .then((res) => {
-          console.log(res)
-          localStorage.setItem("data", JSON.stringify(eval(`res.data.sampleData${id}`)));
+          console.log(res);
+          localStorage.setItem(
+            "data",
+            JSON.stringify(eval(`res.data.sampleData${id}`))
+          );
         })
         .catch((error) => {
           console.error(error);
@@ -68,5 +74,3 @@ export default {
   },
 };
 </script>
-
-
