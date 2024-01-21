@@ -1,8 +1,10 @@
-
 <template>
   <div>
     <router-link to="/">
-      <button>Home</button>
+      <v-btn>
+        Home
+        <v-icon size="large" color="black" icon="mdi-home"></v-icon>
+      </v-btn>
     </router-link>
     <CustomRangeSlider
       v-if="this.dataSize"
@@ -60,7 +62,7 @@
       <SpiralPlotView
         v-if="this.displayedData"
         :baseGranularity="this.granularity"
-        :selectedGranularity = "this.firstGranularity"
+        :selectedGranularity="this.firstGranularity"
         :displayedData="
           this.selectedData ? this.selectedData : this.displayedData
         "
@@ -70,12 +72,17 @@
   </div>
 </template>
 <script>
-import CustomRangeSlider from './CustomRangeSlider.vue';
+import CustomRangeSlider from "./CustomRangeSlider.vue";
 import CyclePlotView from "./CyclePlotView.vue";
 import SpiralPlotView from "./SpiralPlotView.vue";
 import LinePlotView from "./LinePlotView.vue";
 export default {
-  components: { SpiralPlotView, CyclePlotView, CustomRangeSlider, LinePlotView},
+  components: {
+    SpiralPlotView,
+    CyclePlotView,
+    CustomRangeSlider,
+    LinePlotView,
+  },
   data() {
     return {
       firstGranItems: undefined,
@@ -106,7 +113,7 @@ export default {
   },
   methods: {
     updateGranularity(newGranularity) {
-        this.firstGranularity = newGranularity;
+      this.firstGranularity = newGranularity;
     },
     setGranularity() {
       this.selectedGranularity =
@@ -145,9 +152,9 @@ export default {
           (el) => el.date == selectedData[selectedData.length - 1].date
         ),
       ];
-      console.log(this.displayedDataRange)
-      console.log(selectedData)
-      console.log(this.data)
+      console.log(this.displayedDataRange);
+      console.log(selectedData);
+      console.log(this.data);
     },
     highlightData(highlightedData) {
       this.highlightedData = highlightedData;
@@ -212,8 +219,8 @@ export default {
         if (Object.keys(parsedData)[0].split(" ")[1] == undefined) {
           this.data = Object.entries(parsedData).map(([date, value]) => ({
             date: (() => {
-              var d = new Date(date)
-              d.setHours(0)
+              var d = new Date(date);
+              d.setHours(0);
               return d.toLocaleDateString("en-US", {
                 hour: "numeric",
                 minute: "numeric",
@@ -226,17 +233,17 @@ export default {
             value: parseFloat(value),
           }));
         } else {
-        this.data = Object.entries(parsedData).map(([date, value]) => ({
-          date: new Date(date).toLocaleDateString("en-US", {
-            hour: "numeric",
-            minute: "numeric",
-            second: "numeric",
-            day: "numeric",
-            month: "short",
-            year: "numeric",
-          }),
-          value: parseFloat(value),
-        }));
+          this.data = Object.entries(parsedData).map(([date, value]) => ({
+            date: new Date(date).toLocaleDateString("en-US", {
+              hour: "numeric",
+              minute: "numeric",
+              second: "numeric",
+              day: "numeric",
+              month: "short",
+              year: "numeric",
+            }),
+            value: parseFloat(value),
+          }));
         }
         this.displayedData = this.data;
         this.dataSize = this.data.length;
@@ -247,6 +254,5 @@ export default {
       }
     },
   },
-
-}
+};
 </script>

@@ -12,21 +12,16 @@ const router = createRouter({
     {
       path: '/',
       name: 'ManageData',
-      component: ManageData,
+      component: ManageData
     },
     {
-      path: '/lineAndCyclePlot', 
-      name: 'LinePlot',
-      component: LineAndCycleView
-    },      
-    {
       path: '/cycleAndSpiralPlot', 
-      name: 'LinePlot',
+      name: 'cycleAndSpiral',
       component: CycleAndSpiralView
     },      
     {
       path: '/lineAndSpiralPlot',
-      name: 'SpiralPlot',
+      name: 'lineAndSpiral',
       component: LineAndSpiralPlotView
     },
     {
@@ -34,6 +29,11 @@ const router = createRouter({
       name: 'AllView',
       component: AllView
     },
+    {
+      path: '/lineAndCyclePlot', 
+      name: 'LineAndCycle',
+      component: LineAndCycleView
+    },      
 
   ]
 })

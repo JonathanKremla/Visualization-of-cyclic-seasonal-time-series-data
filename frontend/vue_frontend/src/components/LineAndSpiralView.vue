@@ -1,7 +1,10 @@
 <template>
   <div>
     <router-link to="/">
-      <button>Home</button>
+      <v-btn>
+        Home
+        <v-icon size="large" color="black" icon="mdi-home"></v-icon>
+      </v-btn>
     </router-link>
     <CustomRangeSlider 
     v-if="this.dataSize"
