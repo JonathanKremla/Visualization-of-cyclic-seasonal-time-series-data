@@ -706,7 +706,6 @@ export default {
         })
         .on("click", function (event) {
           var data = event.originalTarget.__data__;
-          console.log(data);
           infoBox.transition().duration(50).style("opacity", 1);
           infoBox
             .html(
@@ -868,7 +867,6 @@ export default {
             })
             .on("click", function (event) {
               var data = event.originalTarget.__data__;
-              console.log(data);
               infoBox.transition().duration(50).style("opacity", 1);
               infoBox
                 .html(
@@ -901,9 +899,6 @@ export default {
         var magnitude2 = Math.sqrt((y2*y2) + (x2*x2)) * radius
         var startAngle = Math.acos(dotProduct1/magnitude1); // Start angle (in radians)
         var endAngle = Math.acos(dotProduct2/magnitude2); // End angle (in radians)
-        console.log(`STARTLINE, startAngle: ${startAngle}, endAngle: ${endAngle}`)
-        console.log(x1)
-        console.log(y1)
         if(x1 < 0 && y1 >= 0) {
           startAngle = 2*Math.PI-startAngle;
         } else if (x1<0 && y1 < 0 && x2 < 0) {
@@ -920,6 +915,7 @@ export default {
 
         // Update the highlight polygon points
         highlightedArea.attr("d",arc);
+        updateHighlights();
 
       });
 
@@ -942,9 +938,6 @@ export default {
         var magnitude2 = Math.sqrt((y2*y2) + (x2*x2)) * radius
         var startAngle = Math.acos(dotProduct1/magnitude1); // Start angle (in radians)
         var endAngle = Math.acos(dotProduct2/magnitude2); // End angle (in radians)
-        console.log(`ENDLINE, startAngle: ${startAngle}, endAngle: ${endAngle}`)
-        console.log(x1)
-        console.log(y1)
         if(x1 < 0 && y1 >= 0) {
           startAngle = 2*Math.PI-startAngle;
         } else if (x1<0 && y1 < 0 && x2 < 0) {
@@ -952,7 +945,6 @@ export default {
         } else if (x1<0 && y1 < 0 && x2 >= 0) {
           startAngle = -startAngle
         }
-        var arc = d3
         var arc = d3
           .arc()
           .innerRadius(0)
@@ -962,12 +954,14 @@ export default {
 
         // Update the highlight polygon points
         highlightedArea.attr("d",arc);
+        updateHighlights();
       });
 
-      var highlightedArea = g.append("path").attr("fill", "lightgray").style("opacity", 0.4);
+      var highlightedArea = g.append("path").attr("class", "highlighting").attr("fill", "lightgray").style("opacity", 0.4);
 
       var selectionLine1 = g
         .append("line")
+        .attr("id", "sl1")
         .attr("x1", 0)
         .attr("y1", 0)
         .attr("x2", 0)
@@ -992,10 +986,11 @@ export default {
 
       var selectionLine2 = g
         .append("line")
+        .attr("id", "sl2")
         .attr("x1", 0)
         .attr("y1", 0)
         .attr("x2", 0)
-        .attr("y2", -500)
+        .attr("y2", -self.spiralPlotConstants.radius)
         .attr("stroke-width", 2)
         .attr("stroke", "black")
         .call(drag2)
@@ -1013,6 +1008,18 @@ export default {
             .attr("opacity", "1")
             .attr("stroke-width", 2);
         });
+      
+      function updateHighlights () {
+        console.log(selectionLine1)
+        var sl1Attributes= [selectionLine1.attr("x2"), selectionLine1.attr("y2")];
+        var sl2Attributes= [selectionLine2.attr("x2"), selectionLine2.attr("y2")];
+        console.log(sl1Attributes)
+        console.log(sl2Attributes)
+        arcs.each(function (d) {
+          console.log(d.mid1x)
+          console.log(d.mid1y)
+        });
+      }
 
       const zoom = d3.zoom().scaleExtent([1, 5]).on("zoom", zoomed);
 
