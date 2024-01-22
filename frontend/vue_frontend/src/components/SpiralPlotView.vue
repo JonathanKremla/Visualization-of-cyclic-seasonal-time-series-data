@@ -118,7 +118,7 @@ export default {
         dayHighlight: false,
         granularity: undefined,
         yearText: true,
-        granularityItems: ["Hours", "Days", "Weeks","Months" ],
+        granularityItems: ["Hours", "Days", "Weeks", "Months"],
         colorScheme: "Cividis",
       },
 
@@ -133,7 +133,7 @@ export default {
       spiralPlotConstants: {
         radians: 0.0174532925,
         cyclePadding: 1,
-        radius: 500,
+        radius: 400,
         innerRatio: 0.3,
         width: 1000,
         height: 1000,
@@ -163,7 +163,7 @@ export default {
       },
     },
     recommendedSeg: "setDefaultSegmentsPerCycle",
-    selectedGranularity: "updateSelectedGranularity"
+    selectedGranularity: "updateSelectedGranularity",
   },
   mounted() {
     this.setGranularities();
@@ -172,7 +172,6 @@ export default {
   methods: {
     updateSelectedGranularity(newGranularity) {
       this.options.granularity = newGranularity;
-
     },
     sendUpdatdGranularity() {
       this.$emit("updateGranularity", this.options.granularity);
@@ -276,7 +275,7 @@ export default {
         });
         return Object.values(aggregatedData);
       }
-      if(this.options.granularity == "Weeks") {
+      if (this.options.granularity == "Weeks") {
         const parseTime = d3.timeParse("%b %e, %Y, %I:%M:%S %p");
         const aggregatedData = [];
         this.displayedData.forEach((el) => {
@@ -711,7 +710,9 @@ export default {
           infoBox.transition().duration(50).style("opacity", 1);
           infoBox
             .html(
-              `value: ${Math.round(data.value * 100)/100} <br> date: ${data.day}.${data.month}.${data.year}`
+              `value: ${Math.round(data.value * 100) / 100} <br> date: ${
+                data.day
+              }.${data.month}.${data.year}`
             )
             .style("left", event.pageX + 10 + "px")
             .style("top", event.pageY - 15 + "px")
@@ -871,7 +872,9 @@ export default {
               infoBox.transition().duration(50).style("opacity", 1);
               infoBox
                 .html(
-                  `value: ${Math.round(data.value* 100) / 100} <br> date: ${data.day}.${data.month}.${data.year}`
+                  `value: ${Math.round(data.value * 100) / 100} <br> date: ${
+                    data.day
+                  }.${data.month}.${data.year}`
                 )
                 .style("left", event.pageX + 10 + "px")
                 .style("top", event.pageY - 15 + "px")
@@ -879,6 +882,138 @@ export default {
             });
         }, 300);
       }
+
+      let drag1 = d3.drag().on("drag", function (event) {
+        let angle = Math.atan2(event.y, event.x);
+        let x2New = self.spiralPlotConstants.radius * Math.cos(angle);
+        let y2New = self.spiralPlotConstants.radius * Math.sin(angle);
+        selectionLine1.attr("x2", x2New).attr("y2", y2New);
+
+        var x1 = +selectionLine1.attr("x2");
+        var y1 = +selectionLine1.attr("y2");
+        var x2 = +selectionLine2.attr("x2");
+        var y2 = +selectionLine2.attr("y2");
+
+        var radius = self.spiralPlotConstants.radius;
+        var dotProduct1 = y1 * (-radius)
+        var magnitude1 = Math.sqrt((y1*y1) + (x1*x1)) * radius
+        var dotProduct2 = y2 * (-radius)
+        var magnitude2 = Math.sqrt((y2*y2) + (x2*x2)) * radius
+        var startAngle = Math.acos(dotProduct1/magnitude1); // Start angle (in radians)
+        var endAngle = Math.acos(dotProduct2/magnitude2); // End angle (in radians)
+        console.log(`STARTLINE, startAngle: ${startAngle}, endAngle: ${endAngle}`)
+        console.log(x1)
+        console.log(y1)
+        if(x1 < 0 && y1 >= 0) {
+          startAngle = 2*Math.PI-startAngle;
+        } else if (x1<0 && y1 < 0 && x2 < 0) {
+          startAngle = 2*Math.PI-startAngle
+        } else if (x1<0 && y1 < 0 && x2 >= 0) {
+          startAngle = -startAngle
+        }
+        var arc = d3
+          .arc()
+          .innerRadius(0)
+          .outerRadius(radius)
+          .startAngle(startAngle)
+          .endAngle(x2 < 0 ? 2* Math.PI - endAngle : endAngle)
+
+        // Update the highlight polygon points
+        highlightedArea.attr("d",arc);
+
+      });
+
+      let drag2 = d3.drag().on("drag", function (event) {
+        let angle = Math.atan2(event.y, event.x);
+        let x2New = self.spiralPlotConstants.radius * Math.cos(angle);
+        let y2New = self.spiralPlotConstants.radius * Math.sin(angle);
+        selectionLine2.attr("x2", x2New).attr("y2", y2New);
+
+        var x1 = +selectionLine1.attr("x2");
+        var y1 = +selectionLine1.attr("y2");
+        var x2 = +selectionLine2.attr("x2");
+        var y2 = +selectionLine2.attr("y2");
+
+
+        var radius = self.spiralPlotConstants.radius;
+        var dotProduct1 = y1 * (-radius)
+        var magnitude1 = Math.sqrt((y1*y1) + (x1*x1)) * radius
+        var dotProduct2 = y2 * (-radius)
+        var magnitude2 = Math.sqrt((y2*y2) + (x2*x2)) * radius
+        var startAngle = Math.acos(dotProduct1/magnitude1); // Start angle (in radians)
+        var endAngle = Math.acos(dotProduct2/magnitude2); // End angle (in radians)
+        console.log(`ENDLINE, startAngle: ${startAngle}, endAngle: ${endAngle}`)
+        console.log(x1)
+        console.log(y1)
+        if(x1 < 0 && y1 >= 0) {
+          startAngle = 2*Math.PI-startAngle;
+        } else if (x1<0 && y1 < 0 && x2 < 0) {
+          startAngle = 2*Math.PI-startAngle
+        } else if (x1<0 && y1 < 0 && x2 >= 0) {
+          startAngle = -startAngle
+        }
+        var arc = d3
+        var arc = d3
+          .arc()
+          .innerRadius(0)
+          .outerRadius(radius)
+          .startAngle(startAngle)
+          .endAngle(x2 < 0 ? 2*Math.PI - endAngle : endAngle)
+
+        // Update the highlight polygon points
+        highlightedArea.attr("d",arc);
+      });
+
+      var highlightedArea = g.append("path").attr("fill", "lightgray").style("opacity", 0.4);
+
+      var selectionLine1 = g
+        .append("line")
+        .attr("x1", 0)
+        .attr("y1", 0)
+        .attr("x2", 0)
+        .attr("y2", -400)
+        .attr("stroke-width", 2)
+        .attr("stroke", "black")
+        .call(drag1)
+        .on("mouseover", function (d) {
+          d3.select(this)
+            .transition()
+            .duration("50")
+            .attr("opacity", ".5")
+            .attr("stroke-width", 6);
+        })
+        .on("mouseout", function (d) {
+          d3.select(this)
+            .transition()
+            .duration("50")
+            .attr("opacity", "1")
+            .attr("stroke-width", 2);
+        });
+
+      var selectionLine2 = g
+        .append("line")
+        .attr("x1", 0)
+        .attr("y1", 0)
+        .attr("x2", 0)
+        .attr("y2", -500)
+        .attr("stroke-width", 2)
+        .attr("stroke", "black")
+        .call(drag2)
+        .on("mouseover", function (d) {
+          d3.select(this)
+            .transition()
+            .duration("50")
+            .attr("opacity", ".5")
+            .attr("stroke-width", 6);
+        })
+        .on("mouseout", function (d) {
+          d3.select(this)
+            .transition()
+            .duration("50")
+            .attr("opacity", "1")
+            .attr("stroke-width", 2);
+        });
+
       const zoom = d3.zoom().scaleExtent([1, 5]).on("zoom", zoomed);
 
       function zoomed({ transform }) {
