@@ -718,12 +718,6 @@ export default {
             .style("color", "black");
         });
 
-      var yearStarts = arcs
-        .filter(function (d) {
-          return d.month == 1 && d.day == 1;
-        })
-        .raise();
-
       this.renderYearHighlights();
       this.renderMonthHighlights();
       this.renderDayHighlights();
@@ -886,37 +880,7 @@ export default {
         let x2New = self.spiralPlotConstants.radius * Math.cos(angle);
         let y2New = self.spiralPlotConstants.radius * Math.sin(angle);
         selectionLine1.attr("x2", x2New).attr("y2", y2New);
-
-        var x1 = +selectionLine1.attr("x2");
-        var y1 = +selectionLine1.attr("y2");
-        var x2 = +selectionLine2.attr("x2");
-        var y2 = +selectionLine2.attr("y2");
-
-        var radius = self.spiralPlotConstants.radius;
-        var dotProduct1 = y1 * (-radius)
-        var magnitude1 = Math.sqrt((y1*y1) + (x1*x1)) * radius
-        var dotProduct2 = y2 * (-radius)
-        var magnitude2 = Math.sqrt((y2*y2) + (x2*x2)) * radius
-        var startAngle = Math.acos(dotProduct1/magnitude1); // Start angle (in radians)
-        var endAngle = Math.acos(dotProduct2/magnitude2); // End angle (in radians)
-        if(x1 < 0 && y1 >= 0) {
-          startAngle = 2*Math.PI-startAngle;
-        } else if (x1<0 && y1 < 0 && x2 < 0) {
-          startAngle = 2*Math.PI-startAngle
-        } else if (x1<0 && y1 < 0 && x2 >= 0) {
-          startAngle = -startAngle
-        }
-        var arc = d3
-          .arc()
-          .innerRadius(0)
-          .outerRadius(radius)
-          .startAngle(startAngle)
-          .endAngle(x2 < 0 ? 2* Math.PI - endAngle : endAngle)
-
-        // Update the highlight polygon points
-        highlightedArea.attr("d",arc);
-        updateHighlights();
-
+        updateHighlights("remove");
       });
 
       let drag2 = d3.drag().on("drag", function (event) {
@@ -924,40 +888,14 @@ export default {
         let x2New = self.spiralPlotConstants.radius * Math.cos(angle);
         let y2New = self.spiralPlotConstants.radius * Math.sin(angle);
         selectionLine2.attr("x2", x2New).attr("y2", y2New);
-
-        var x1 = +selectionLine1.attr("x2");
-        var y1 = +selectionLine1.attr("y2");
-        var x2 = +selectionLine2.attr("x2");
-        var y2 = +selectionLine2.attr("y2");
-
-
-        var radius = self.spiralPlotConstants.radius;
-        var dotProduct1 = y1 * (-radius)
-        var magnitude1 = Math.sqrt((y1*y1) + (x1*x1)) * radius
-        var dotProduct2 = y2 * (-radius)
-        var magnitude2 = Math.sqrt((y2*y2) + (x2*x2)) * radius
-        var startAngle = Math.acos(dotProduct1/magnitude1); // Start angle (in radians)
-        var endAngle = Math.acos(dotProduct2/magnitude2); // End angle (in radians)
-        if(x1 < 0 && y1 >= 0) {
-          startAngle = 2*Math.PI-startAngle;
-        } else if (x1<0 && y1 < 0 && x2 < 0) {
-          startAngle = 2*Math.PI-startAngle
-        } else if (x1<0 && y1 < 0 && x2 >= 0) {
-          startAngle = -startAngle
-        }
-        var arc = d3
-          .arc()
-          .innerRadius(0)
-          .outerRadius(radius)
-          .startAngle(startAngle)
-          .endAngle(x2 < 0 ? 2*Math.PI - endAngle : endAngle)
-
-        // Update the highlight polygon points
-        highlightedArea.attr("d",arc);
-        updateHighlights();
+        updateHighlights("add");
       });
 
-      var highlightedArea = g.append("path").attr("class", "highlighting").attr("fill", "lightgray").style("opacity", 0.4);
+      var highlightedArea = g
+        .append("path")
+        .attr("class", "highlighting")
+        .attr("fill", "lightgray")
+        .style("opacity", 0.4);
 
       var selectionLine1 = g
         .append("line")
@@ -1008,17 +946,40 @@ export default {
             .attr("opacity", "1")
             .attr("stroke-width", 2);
         });
-      
-      function updateHighlights () {
-        console.log(selectionLine1)
-        var sl1Attributes= [selectionLine1.attr("x2"), selectionLine1.attr("y2")];
-        var sl2Attributes= [selectionLine2.attr("x2"), selectionLine2.attr("y2")];
-        console.log(sl1Attributes)
-        console.log(sl2Attributes)
-        arcs.each(function (d) {
-          console.log(d.mid1x)
-          console.log(d.mid1y)
-        });
+
+      function updateHighlights(action) {
+        var controllPointQ1 = [300,-500]
+        var controllPointQ2 = [offset+1000,offset+1000]
+        var controllPointQ3 = [offset+1000,offset-1000]
+        var controllPointQ4 = [offset-1000,offset-1000]
+        var offset = self.margin.top + self.spiralPlotConstants.radius;
+        var sl1Attributes = [
+          selectionLine1.attr("x2"),
+          selectionLine1.attr("y2"),
+        ];
+        var sl2Attributes = [
+          selectionLine2.attr("x2"),
+          selectionLine2.attr("y2"),
+        ];
+        console.log(sl2Attributes);
+        var hullPoints = d3.polygonHull([
+          [
+            offset + parseFloat(sl1Attributes[0]),
+            offset + parseFloat(sl1Attributes[1]),
+          ],
+          controllPointQ1,
+          [
+            offset + parseFloat(sl2Attributes[0]),
+            offset + parseFloat(sl2Attributes[1]),
+          ],
+          [offset, offset],
+        ]);
+
+        //TODO: Concat array so that on action: "add" it wwill add seleected values else it will remove selected values(highlighted dat should be a set)
+        highlightedData.concat(arcs.filter(function (d) {
+          return d3.polygonContains(hullPoints, [offset + d.mid1x, offset + d.mid1y]);
+        }));
+        console.log(highlightedData);
       }
 
       const zoom = d3.zoom().scaleExtent([1, 5]).on("zoom", zoomed);
