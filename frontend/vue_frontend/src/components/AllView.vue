@@ -66,6 +66,7 @@
         :displayedData="
           this.selectedData ? this.selectedData : this.displayedData
         "
+        :highlightData="this.highlightedData"
         v-on:updateGranularity="updateGranularity"
       ></SpiralPlotView>
     </div>

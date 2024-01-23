@@ -705,9 +705,10 @@ export default {
         this.aggregatedData[0].values.length * this.aggregatedData.length * 3< this.width
           ? this.width
           : (this.aggregatedData[0].values.length) * (this.aggregatedData.length*3);
-      while((dynamicWidth /this.aggregatedData.length -r *2) < 142 ) {
+      var dynamicWidth = this.width;
+      /*while((dynamicWidth /this.aggregatedData.length -r *2) < 142 ) {
         dynamicWidth += 100;
-      }
+      }*/
       const xx = d3
         .scaleLinear()
         .range([r * 2, dynamicWidth / this.aggregatedData.length - r * 2])
@@ -835,11 +836,10 @@ export default {
         this.$emit("highlightedData", event.target.__data__);
       });
 
-      const zoom = d3.zoom().scaleExtent([1, 1]).on("zoom", zoomed);
+      const zoom = d3.zoom().scaleExtent([1, 5]).on("zoom", zoomed);
 
       const self = this;
       function zoomed({ transform }) {
-        transform.y = self.margin.top;
         d3.select(".zoomContainer").attr("transform", transform);
       }
       svg.call(zoom);
