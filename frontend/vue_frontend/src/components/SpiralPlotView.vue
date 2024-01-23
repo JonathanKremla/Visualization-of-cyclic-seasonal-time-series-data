@@ -106,6 +106,7 @@ export default {
     displayedData: Object,
     baseGranularity: String,
     selectedGranularity: String,
+    highlightData: Object,
   },
   data() {
     return {
@@ -164,12 +165,61 @@ export default {
     },
     recommendedSeg: "setDefaultSegmentsPerCycle",
     selectedGranularity: "updateSelectedGranularity",
+    highlightData: "updateHighlightedData",
   },
   mounted() {
     this.setGranularities();
     this.setDefaultSegmentsPerCycle();
   },
   methods: {
+    updateHighlightedData() {
+      this.renderGraph();
+      if (this.highlightData == undefined) {
+        return;
+      }
+      var data = this.highlightData.values.map((item) => item.time.getTime());
+      var arcs = d3.selectAll(".arc");
+      var dataPoints = arcs
+        .filter(function (d) {
+          var date = new Date(`${d.month} ${d.day}, ${d.year} ${d.hour}:00:00`);
+          return data.includes(date.getTime());
+        })
+        .raise();
+      dataPoints
+        .append("path")
+        .attr("d", function (d) {
+          let start = "M " + d.x1 + " " + d.y1;
+          let side1 =
+            " Q " +
+            d.controlPoint1x +
+            " " +
+            d.controlPoint1y +
+            " " +
+            d.x2 +
+            " " +
+            d.y2;
+          let side2 = "L " + d.x3 + " " + d.y3;
+          let side3 =
+            " Q " +
+            d.controlPoint2x +
+            " " +
+            d.controlPoint2y +
+            " " +
+            d.x4 +
+            " " +
+            d.y4;
+          return start + " " + side1 + " " + side2 + " " + side3 + " Z";
+        })
+        .style(
+          "stroke",
+          this.options.colorScheme == "Cividis" ||
+            this.options.colorScheme == "Viridis"
+            ? "red"
+            : "green"
+        )
+        .style("fill", "none")
+        .style("stroke-width", 2);
+    },
     updateSelectedGranularity(newGranularity) {
       this.options.granularity = newGranularity;
     },
@@ -181,7 +231,7 @@ export default {
       // Set a new timeout to debounce the watcher function after 300 milliseconds of inactivity
       this.watcherTimeout = setTimeout(() => {
         this.prepareData();
-      }, 300);
+      }, 10);
     },
     setGranularities() {
       switch (this.baseGranularity) {
@@ -948,10 +998,10 @@ export default {
         });
 
       function updateHighlights(action) {
-        var controllPointQ1 = [300,-500]
-        var controllPointQ2 = [offset+1000,offset+1000]
-        var controllPointQ3 = [offset+1000,offset-1000]
-        var controllPointQ4 = [offset-1000,offset-1000]
+        var controllPointQ1 = [300, -500];
+        var controllPointQ2 = [offset + 1000, offset + 1000];
+        var controllPointQ3 = [offset + 1000, offset - 1000];
+        var controllPointQ4 = [offset - 1000, offset - 1000];
         var offset = self.margin.top + self.spiralPlotConstants.radius;
         var sl1Attributes = [
           selectionLine1.attr("x2"),
@@ -976,10 +1026,6 @@ export default {
         ]);
 
         //TODO: Concat array so that on action: "add" it wwill add seleected values else it will remove selected values(highlighted dat should be a set)
-        highlightedData.concat(arcs.filter(function (d) {
-          return d3.polygonContains(hullPoints, [offset + d.mid1x, offset + d.mid1y]);
-        }));
-        console.log(highlightedData);
       }
 
       const zoom = d3.zoom().scaleExtent([1, 5]).on("zoom", zoomed);
