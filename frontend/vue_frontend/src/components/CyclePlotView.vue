@@ -833,6 +833,8 @@ export default {
         .attr("fill", "transparent");
 
       d3.selectAll(".segments").on("click", (event) => {
+        d3.selectAll(".segments").raise().attr("stroke","black");
+        d3.select(event.target).raise().attr("stroke","red");
         this.$emit("highlightedData", event.target.__data__);
       });
 
