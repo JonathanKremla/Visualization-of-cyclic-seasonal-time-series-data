@@ -724,17 +724,21 @@ export default {
             .style("left", event.pageX + 10 + "px")
             .style("top", event.pageY - 15 + "px")
             .style("color", "black");
-          var currEl = d3.select(this)._groups[0][0].__data__;
+          var currEl = d3.select(this)._groups[0].map((d) => {
+            var date = new Date(d.__data__.year, d.__data__.month - 1, d.__data__.day, d.__data__.hour, 0, 0);
+            return {
+              fullDate: date,
+              value: d.__data__.value,
+            }
+          })
           var isInSelection = false;
-          self.selectedData.each((d) => {
-            if(currEl == d) {
+          self.selectedData.forEach((d) => {
+            if (currEl == d) {
               isInSelection = true;
             }
           })
-          if(!isInSelection) {
-            var newSelection = arcs.filter((d) => {
-              return 
-            });
+          if (!isInSelection) {
+            self.selectedData.push(currEl)
             return;
           }
           self.selectedData = self.selectedData.filter((d) => {
@@ -910,7 +914,6 @@ export default {
           return d3.polygonContains(hullPoints, [offset + d.mid1x, offset + d.mid1y])
         });
         selectedData.attr("opacity", "0.5")
-        self.selectedData = selectedData;
         var transformed = selectedData._groups[0].map((d) => {
           var date = new Date(d.__data__.year, d.__data__.month - 1, d.__data__.day, d.__data__.hour, 0, 0);
           return {
@@ -918,7 +921,7 @@ export default {
             value: d.__data__.value,
           }
         })
-        console.log(transformed)
+        self.selectedData = transformed;
         self.$emit("highlightedData", transformed)
       }
 
