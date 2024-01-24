@@ -151,7 +151,7 @@ export default {
     },
     renderGraph() {
       d3.select(this.$refs.linePlot).selectAll("*").remove();
-      const width = 800;
+      const width = 1000;
       const height = 500;
       const padding = 50;
 

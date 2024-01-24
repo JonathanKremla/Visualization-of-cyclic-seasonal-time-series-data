@@ -1,5 +1,7 @@
 <template>
   <div>
+    <svg ref="legend"></svg>
+    <svg ref="spiralPlot"></svg>
     <h3>Options:</h3>
     <div class="text-caption">Segments per Cycle</div>
     <v-container>
@@ -93,8 +95,6 @@
         </v-card-text>
       </v-card>
     </div>
-    <svg ref="legend"></svg>
-    <svg ref="spiralPlot"></svg>
   </div>
 </template>
 
@@ -1029,11 +1029,11 @@ export default {
       }
 
       const zoom = d3.zoom().scaleExtent([1, 5]).on("zoom", zoomed);
-
       function zoomed({ transform }) {
         g.attr("transform", transform);
       }
-      svg.call(zoom);
+      svg.
+      call(zoom);
     },
   },
 };
