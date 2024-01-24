@@ -36,6 +36,8 @@
               <v-col>
                 <v-switch label="Highlight start of each day" v-model="this.options.dayHighlight"
                   :disabled="this.options.granularity != 'Hours'" color="primary"></v-switch>
+                <v-switch label="Enable brushing / Disable zoom" v-model="this.zoomBrushToggle"
+                  color="primary"></v-switch>
               </v-col>
               <v-col>
                 <v-select label="Select color scheme" :items="['Cividis', 'Viridis', 'Inferno', 'Magma', 'Plasma']"
@@ -98,6 +100,7 @@ export default {
       },
       margin: { top: 50, right: 50, bottom: 50, left: 50 },
 
+      zoomBrushToggle: true,
       currentlySelected: undefined,
       recommendedSeg: true,
       segmentsPerCycle: undefined,
@@ -118,6 +121,7 @@ export default {
         }
       },
     },
+    zoomBrushToggle: "renderGraph",
     recommendedSeg: "setDefaultSegmentsPerCycle",
     selectedGranularity: "updateSelectedGranularity",
     highlightData: "updateHighlightedData",
@@ -720,6 +724,22 @@ export default {
             .style("left", event.pageX + 10 + "px")
             .style("top", event.pageY - 15 + "px")
             .style("color", "black");
+          var currEl = d3.select(this)._groups[0][0].__data__;
+          var isInSelection = false;
+          self.selectedData.each((d) => {
+            if(currEl == d) {
+              isInSelection = true;
+            }
+          })
+          if(!isInSelection) {
+            var newSelection = arcs.filter((d) => {
+              return 
+            });
+            return;
+          }
+          self.selectedData = self.selectedData.filter((d) => {
+            return d != currEl;
+          })
         });
 
       this.renderYearHighlights();
@@ -874,6 +894,7 @@ export default {
                 .style("left", event.pageX + 10 + "px")
                 .style("top", event.pageY - 15 + "px")
                 .style("color", "black");
+              d3.select(this).attr("opacity", "1")
             });
         }, 300);
       }
@@ -890,9 +911,8 @@ export default {
         });
         selectedData.attr("opacity", "0.5")
         self.selectedData = selectedData;
-        console.log(selectedData)
         var transformed = selectedData._groups[0].map((d) => {
-          var date = new Date(d.__data__.year, d.__data__.month-1, d.__data__.day, d.__data__.hour, 0, 0);
+          var date = new Date(d.__data__.year, d.__data__.month - 1, d.__data__.day, d.__data__.hour, 0, 0);
           return {
             fullDate: date,
             value: d.__data__.value,
@@ -906,15 +926,21 @@ export default {
       var draggedPoints = [[450, 450]];
       function addDrag() {
         function dragstart(event) {
-          draggedPoints = [[450, 450]];
-          draggedPoints.push([event.x, event.y + yOffset]);
+          if (event.sourceEvent.shiftKey) {
+            draggedPoints = [[450, 450]];
+            draggedPoints.push([event.x, event.y + yOffset]);
+          }
         }
         function dragged(event) {
-          draggedPoints.push([event.x, event.y + yOffset]);
+          if (event.sourceEvent.shiftKey) {
+            draggedPoints.push([event.x, event.y + yOffset]);
+          }
         }
         function dragended(event) {
-          draggedPoints.push([event.x, event.y + yOffset]);
-          updateSelected();
+          if (event.sourceEvent.shiftKey) {
+            draggedPoints.push([event.x, event.y + yOffset]);
+            updateSelected();
+          }
         }
 
         function draw() {
@@ -927,12 +953,17 @@ export default {
 
       }
 
-      svg.call(addDrag())
       const zoom = d3.zoom().scaleExtent([1, 5]).on("zoom", zoomed);
       function zoomed({ transform }) {
         g.attr("transform", transform);
       }
-      //svg.call(zoom);
+      if (!this.zoomBrushToggle) {
+        svg.on("mousedown.drag", null)
+        svg.call(zoom);
+      } else {
+        svg.on("mousedown.zoom", null)
+        svg.call(addDrag())
+      }
 
     },
   },
