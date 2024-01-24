@@ -217,9 +217,15 @@ export default {
 
       //draw highlighted points
       if (this.highlightedData) {
+        var data = this.highlightedData
+        if(this.highlightedData.values.length != 0) {
+          data = this.highlightedData.values;
+        }
+        console.log(data)
+        
         g
           .selectAll("points")
-          .data(this.highlightedData.values)
+          .data(data)
           .enter()
           .append("circle")
           .attr("cx", function (d) {

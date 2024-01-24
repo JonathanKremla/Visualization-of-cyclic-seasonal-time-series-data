@@ -18,6 +18,7 @@
     <LinePlotView v-if="this.displayedData" 
       :displayedData="this.displayedData"
       :updatedGranularity="this.updatedGranularity"
+      :highlightedData="this.highlightedData"
       v-on:selectedData="this.updateData"
     >
     </LinePlotView>
@@ -28,6 +29,7 @@
         v-if="this.displayedData"
         :baseGranularity="this.granularity"
         :displayedData="this.selectedData ? this.selectedData : this.displayedData"
+        v-on:highlightedData="this.highlightData"
         v-on:updateGranularity="updateGranularity"
       ></SpiralPlotView>
     </div>
@@ -51,6 +53,7 @@ export default {
       granularity: undefined,
       updatedGranularity: undefined,
       selectedData: undefined,
+      highlightedData: undefined,
     };
   },
   watch: {
@@ -63,6 +66,9 @@ export default {
     this.checkGranularity();
   },
   methods: {
+    highlightData(highlightedData) {
+      this.highlightedData = highlightedData;
+    },
     updateData(selectedData) {
       this.displayedData = selectedData;
       this.displayedDataRange = [
