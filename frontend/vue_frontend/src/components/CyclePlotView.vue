@@ -1,6 +1,18 @@
 <template>
   <div>
+    <v-container fluid>
+    <v-row class="d-flex">
+      <v-col>
+        <v-switch label="Use dynamic Width" v-model="useDynamicWidth" color="primary"></v-switch>
+      </v-col>
+      <v-col>
+        <v-btn @click="resetHighlighting" color="primary">resetHighlighting</v-btn>
+      </v-col>
+    </v-row>
+  </v-container>
+
     <svg ref="cyclePlot"></svg>
+
   </div>
 </template>
 
@@ -24,7 +36,7 @@ Date.prototype.getWeek = function () {
       ((date.getTime() - week1.getTime()) / 86400000 -
         3 +
         ((week1.getDay() + 6) % 7)) /
-        7
+      7
     )
   );
 };
@@ -39,6 +51,7 @@ export default {
     return {
       data: null,
       aggregatedData: null,
+      useDynamicWidth: false,
       dataSize: 0,
       margin: { top: 50, right: 50, bottom: 50, left: 50 },
       width: 1000,
@@ -48,8 +61,13 @@ export default {
   watch: {
     displayedData: "groupData",
     granularity: "groupData",
+    useDynamicWidth: "createCyclePlot",
   },
   methods: {
+    resetHighlighting() {
+      this.$emit("highlightedData", null)
+      d3.selectAll(".segments").raise().attr("stroke", "black");
+    },
     calculateHourDay() {
       var groups = [
         "00:00",
@@ -85,17 +103,17 @@ export default {
         const date = parseTime(entry.date);
         const month = date.getMonth();
         const year = date.getFullYear();
-        const day = new Intl.DateTimeFormat("en-US", {day: "numeric"}).format(
+        const day = new Intl.DateTimeFormat("en-US", { day: "numeric" }).format(
           date
         );
-        const hour = new Intl.DateTimeFormat("en-US", {hour: "numeric", minute:"numeric", hour12:false}).format(
+        const hour = new Intl.DateTimeFormat("en-US", { hour: "numeric", minute: "numeric", hour12: false }).format(
           date
         );
         const key = `${hour}-${day}-${month}-${year}`;
 
         if (!groupedData[key]) {
           groupedData[key] = {
-            name: new Intl.DateTimeFormat("en-US", { hour: "numeric", minute:"numeric", hour12:false }).format(
+            name: new Intl.DateTimeFormat("en-US", { hour: "numeric", minute: "numeric", hour12: false }).format(
               date
             ),
             category: hour,
@@ -195,16 +213,16 @@ export default {
         const date = parseTime(entry.date);
         const month = date.getMonth();
         const year = date.getFullYear();
-        const day = 
-            new Intl.DateTimeFormat("en-US", { day: "numeric" }).format(
-              date
-            );
+        const day =
+          new Intl.DateTimeFormat("en-US", { day: "numeric" }).format(
+            date
+          );
 
         const key = `${day}-${month}-${year}`;
 
         if (!groupedData[key]) {
           groupedData[key] = {
-            name:  day,
+            name: day,
             category: day,
             time: date,
             values: [],
@@ -280,15 +298,15 @@ export default {
         const week = date.getWeek();
         const year = date.getFullYear();
         const key = `${week}-${year}`;
-        const day = 
-            new Intl.DateTimeFormat("en-US", { day: "numeric" }).format(
-              date
-        );
+        const day =
+          new Intl.DateTimeFormat("en-US", { day: "numeric" }).format(
+            date
+          );
 
         if (!groupedData[key]) {
           groupedData[key] = {
-            name: Math.floor(day/7)+1,            
-            category: Math.floor(day/7)+1,
+            name: Math.floor(day / 7) + 1,
+            category: Math.floor(day / 7) + 1,
             time: date,
             values: [],
             count: 0,
@@ -408,14 +426,14 @@ export default {
         const week = date.getWeek();
         const year = date.getFullYear();
         const key = `${week}-${year}`;
-        const day = 
-            new Intl.DateTimeFormat("en-US", { day: "numeric" }).format(
-              date
-        );
+        const day =
+          new Intl.DateTimeFormat("en-US", { day: "numeric" }).format(
+            date
+          );
 
         if (!groupedData[key]) {
           groupedData[key] = {
-            name: week,            
+            name: week,
             category: week,
             time: date,
             values: [],
@@ -681,8 +699,8 @@ export default {
         .append("g")
         .attr("transform", `translate(${this.margin.left},${this.margin.top})`)
         .attr("class", "zoomContainer");
-      
-      
+
+
 
       // Draw the y-axis
       const y = d3
@@ -702,13 +720,17 @@ export default {
         ]);
       svg.append("g").call(d3.axisLeft(y));
       var dynamicWidth =
-        this.aggregatedData[0].values.length * this.aggregatedData.length * 3< this.width
+        this.aggregatedData[0].values.length * this.aggregatedData.length * 3 < this.width
           ? this.width
-          : (this.aggregatedData[0].values.length) * (this.aggregatedData.length*3);
-      var dynamicWidth = this.width;
-      /*while((dynamicWidth /this.aggregatedData.length -r *2) < 142 ) {
-        dynamicWidth += 100;
-      }*/
+          : (this.aggregatedData[0].values.length) * (this.aggregatedData.length * 3);
+      if (!this.useDynamicWidth) {
+        var dynamicWidth = this.width;
+
+      } else {
+        while ((dynamicWidth / this.aggregatedData.length - r * 2) < 142) {
+          dynamicWidth += 100;
+        }
+      }
       const xx = d3
         .scaleLinear()
         .range([r * 2, dynamicWidth / this.aggregatedData.length - r * 2])
@@ -833,8 +855,8 @@ export default {
         .attr("fill", "transparent");
 
       d3.selectAll(".segments").on("click", (event) => {
-        d3.selectAll(".segments").raise().attr("stroke","black");
-        d3.select(event.target).raise().attr("stroke","red");
+        d3.selectAll(".segments").raise().attr("stroke", "black");
+        d3.select(event.target).raise().attr("stroke", "red");
         this.$emit("highlightedData", event.target.__data__);
       });
 

@@ -21,7 +21,7 @@
       v-if="this.displayedData"
       :displayedData="this.displayedData"
       :updatedGranularity="this.selectedGranularity.split('-')[0]"
-      :highlightedData="this.highlightedData"
+      :highlightedData="this.highlightedSpiralData != undefined ? this.highlightedSpiralData : this.highlightedData"
       v-on:selectedData="this.updateData"
     >
     </LinePlotView>
@@ -67,6 +67,7 @@
           this.selectedData ? this.selectedData : this.displayedData
         "
         :highlightData="this.highlightedData"
+        v-on:highlightedData="this.highlightSpiralData"
         v-on:updateGranularity="updateGranularity"
       ></SpiralPlotView>
     </div>
@@ -99,6 +100,7 @@ export default {
       dataSize: 0,
       granularity: undefined,
       highlightedData: undefined,
+      highlightedSpiralData: undefined,
       selectedGranularity: "",
     };
   },
@@ -113,6 +115,9 @@ export default {
     this.checkGranularity();
   },
   methods: {
+    highlightSpiralData(data) {
+      this.highlightedSpiralData = data;
+    },
     updateGranularity(newGranularity) {
       this.firstGranularity = newGranularity;
     },
