@@ -5,30 +5,14 @@
     <h3>Options:</h3>
     <div class="text-caption">Segments per Cycle</div>
     <v-container>
-      <v-slider
-        aria-label="Segments per Cycle"
-        step="1"
-        v-model="this.segmentsPerCycle"
-        :max="this.displayedData.length"
-        :disabled="this.recommendedSeg"
-        min="1"
-        thumb-label="always"
-      >
+      <v-slider aria-label="Segments per Cycle" step="1" v-model="this.segmentsPerCycle" :max="this.displayedData.length"
+        :disabled="this.recommendedSeg" min="1" thumb-label="always">
         <template v-slot:append>
-          <v-text-field
-            v-model="this.segmentsPerCycle"
-            hide-details
-            single-line
-            density="compact"
-            type="number"
-            style="width: 100px"
-          ></v-text-field>
+          <v-text-field v-model="this.segmentsPerCycle" hide-details single-line density="compact" type="number"
+            style="width: 100px"></v-text-field>
         </template>
       </v-slider>
-      <v-checkbox
-        label="Use recommended segments per cycle"
-        v-model="this.recommendedSeg"
-      ></v-checkbox>
+      <v-checkbox label="Use recommended segments per cycle" v-model="this.recommendedSeg"></v-checkbox>
     </v-container>
     <div>
       <v-card flat>
@@ -36,63 +20,30 @@
           <v-container fluid>
             <v-row>
               <v-col>
-                <v-switch
-                  label="Highlight start of each year"
-                  v-model="this.options.yearHighlight"
-                  :disabled="
-                    this.options.granularity == 'Hours' ||
-                    this.baseGranularity == 'Hours'
-                  "
-                  color="primary"
-                ></v-switch>
-                <v-switch
-                  label="Display text for year"
-                  v-model="this.options.yearText"
-                  :disabled="
-                    this.options.granularity == 'Hours' ||
-                    this.baseGranularity == 'Hours'
-                  "
-                  color="primary"
-                ></v-switch>
+                <v-switch label="Highlight start of each year" v-model="this.options.yearHighlight" :disabled="this.options.granularity == 'Hours' ||
+                  this.baseGranularity == 'Hours'
+                  " color="primary"></v-switch>
+                <v-switch label="Display text for year" v-model="this.options.yearText" :disabled="this.options.granularity == 'Hours' ||
+                  this.baseGranularity == 'Hours'
+                  " color="primary"></v-switch>
               </v-col>
               <v-col>
-                <v-switch
-                  label="Highlight start of each month"
-                  v-model="this.options.monthHighlight"
-                  :disabled="this.options.granularity == 'Months'"
-                  color="primary"
-                ></v-switch>
-                <v-switch
-                  label="Display text for month"
-                  v-model="this.options.monthText"
-                  :disabled="this.options.granularity == 'Months'"
-                  color="primary"
-                ></v-switch>
+                <v-switch label="Highlight start of each month" v-model="this.options.monthHighlight"
+                  :disabled="this.options.granularity == 'Months'" color="primary"></v-switch>
+                <v-switch label="Display text for month" v-model="this.options.monthText"
+                  :disabled="this.options.granularity == 'Months'" color="primary"></v-switch>
               </v-col>
               <v-col>
-                <v-switch
-                  label="Highlight start of each day"
-                  v-model="this.options.dayHighlight"
-                  :disabled="this.options.granularity != 'Hours'"
-                  color="primary"
-                ></v-switch>
-                <v-switch
-                  label="Enable brushing / Disable zoom"
-                  v-model="this.zoomBrushToggle"
-                  color="primary"
-                ></v-switch>
+                <v-switch label="Highlight start of each day" v-model="this.options.dayHighlight"
+                  :disabled="this.options.granularity != 'Hours'" color="primary"></v-switch>
+                <v-switch label="Enable brushing / Disable zoom" v-model="this.zoomBrushToggle"
+                  color="primary"></v-switch>
               </v-col>
               <v-col>
-                <v-select
-                  label="Select color scheme"
-                  :items="['Cividis', 'Viridis', 'Inferno', 'Magma', 'Plasma']"
-                  v-model="this.options.colorScheme"
-                ></v-select>
-                <v-select
-                  label="Select granularity"
-                  :items="this.options.granularityItems"
-                  v-model="this.options.granularity"
-                >
+                <v-select label="Select color scheme" :items="['Cividis', 'Viridis', 'Inferno', 'Magma', 'Plasma']"
+                  v-model="this.options.colorScheme"></v-select>
+                <v-select label="Select granularity" :items="this.options.granularityItems"
+                  v-model="this.options.granularity">
                 </v-select>
               </v-col>
             </v-row>
@@ -625,10 +576,10 @@ export default {
         .attr(
           "transform",
           "translate(" +
-            (this.margin.left + this.spiralPlotConstants.radius) +
-            "," +
-            (this.margin.top + this.spiralPlotConstants.radius) +
-            ")"
+          (this.margin.left + this.spiralPlotConstants.radius) +
+          "," +
+          (this.margin.top + this.spiralPlotConstants.radius) +
+          ")"
         );
 
       const x = function (angle, radius) {
@@ -679,11 +630,11 @@ export default {
           this.spiralPlotConstants.cyclePadding +
           this.spiralPlotConstants.innerRadius +
           ((i + 1) / this.segmentsPerCycle) *
-            this.spiralPlotConstants.segmentWidth;
+          this.spiralPlotConstants.segmentWidth;
         var endOuterRadius =
           this.spiralPlotConstants.innerRadius +
           ((i + 1) / this.segmentsPerCycle) *
-            this.spiralPlotConstants.segmentWidth +
+          this.spiralPlotConstants.segmentWidth +
           this.spiralPlotConstants.segmentWidth;
 
         //console.log("Radi: " + startInnerRadius + ", " + startOuterRadius + ", " + endInnerRadius + ", " + endOuterRadius)
@@ -705,11 +656,11 @@ export default {
           this.spiralPlotConstants.innerRadius +
           this.spiralPlotConstants.cyclePadding +
           ((i + 0.5) / this.segmentsPerCycle) *
-            this.spiralPlotConstants.segmentWidth;
+          this.spiralPlotConstants.segmentWidth;
         let midOuterRadius =
           this.spiralPlotConstants.innerRadius +
           ((i + 0.5) / this.segmentsPerCycle) *
-            this.spiralPlotConstants.segmentWidth +
+          this.spiralPlotConstants.segmentWidth +
           this.spiralPlotConstants.segmentWidth;
 
         d.mid1x = x(midAngle, midInnerRadius);
@@ -772,14 +723,13 @@ export default {
           infoBox.transition().duration(50).style("opacity", 1);
           infoBox
             .html(
-              `value: ${Math.round(data.value * 100) / 100} <br> date: ${
-                data.day
+              `value: ${Math.round(data.value * 100) / 100} <br> date: ${data.day
               }.${data.month}.${data.year}`
             )
             .style("left", event.pageX + 10 + "px")
             .style("top", event.pageY - 15 + "px")
             .style("color", "black");
-          
+
           var currEl = d3.select(this)._groups[0].map((d) => {
             var date = new Date(
               d.__data__.year,
@@ -962,8 +912,7 @@ export default {
               infoBox.transition().duration(50).style("opacity", 1);
               infoBox
                 .html(
-                  `value: ${Math.round(data.value * 100) / 100} <br> date: ${
-                    data.day
+                  `value: ${Math.round(data.value * 100) / 100} <br> date: ${data.day
                   }.${data.month}.${data.year}`
                 )
                 .style("left", event.pageX + 10 + "px")
@@ -1005,27 +954,204 @@ export default {
 
       var yOffset = -70;
       var draggedPoints = [[450, 450]];
+      var selectionLine1 = svg.append('line')
+        .style("stroke", "black")
+        .style("stroke-width", 1)
+        .attr("x1", 450)
+        .attr("y1", 450)
+        .attr("x2", 450)
+        .attr("y2", 450)
+        .on("mouseover", function (d) {
+          console.log("mouseOver1")
+          d3.select(this).transition().duration("50").attr("opacity", "0.5");
+          d3.select(this).style("stroke-width", 5);
+        })
+        .on("mouseout", function (d) {
+          console.log("mouseOut2")
+          d3.select(this).transition().duration("50").attr("opacity", "1");
+          d3.select(this).style("stroke-width", 1);
+        }).call(addLineDrag1());
+
+
+      function addLineDrag1() {
+        function dragstart(event) {
+          console.log(event)
+        }
+        function dragged(event) {
+          var offset = self.margin.top + self.spiralPlotConstants.radius;
+          var hullPoints = d3.polygonHull(draggedPoints);
+          d3.select(this).attr("x2", event.x).attr("y2", event.y).on("mouseover", null)
+          var contains = d3.polygonContains(hullPoints, [
+            event.x,
+            event.y,
+          ]);
+          //we are decreasing the selected area
+          console.log(contains)
+          if (contains) {
+            draggedPoints.pop()
+            draggedPoints.pop()
+          }
+          //we are increasing the selected area
+          if (!contains) {
+            draggedPoints.push([event.x, event.y])
+          }
+          updateSelected();
+
+        }
+        function dragended(event) {
+          draggedPoints.push([event.x, event.y])
+          updateSelected();
+          selectionLine1.attr("x2", 450).attr("y2", 450)
+          selectionLine1 = svg.append('line')
+            .style("stroke", "black")
+            .style("stroke-width", 1)
+            .attr("x1", 450)
+            .attr("y1", 450)
+            .attr("x2", event.x)
+            .attr("y2", event.y)
+            .attr("class", "selectionLine1")
+            .on("mouseover", function (d) {
+              console.log("mouseOver1")
+              d3.select(this).transition().duration("50").attr("opacity", "0.5");
+              d3.select(this).style("stroke-width", 5);
+            })
+            .on("mouseout", function (d) {
+              console.log("mouseOut2")
+              d3.select(this).transition().duration("50").attr("opacity", "1");
+              d3.select(this).style("stroke-width", 1);
+            }).call(addLineDrag1());
+        }
+        return d3
+          .drag()
+          .on("start", dragstart)
+          .on("drag", dragged)
+          .on("end", dragended);
+      }
+
+      var selectionLine2 = svg.append('line')
+        .style("stroke", "black")
+        .style("stroke-width", 1)
+        .attr("x1", 450)
+        .attr("y1", 450)
+        .attr("x2", 450)
+        .attr("y2", 450)
+        .attr("class", "selectionLine2");
+
+
+      function addLineDrag2() {
+        function dragstart(event) {
+          console.log(event)
+        }
+        function dragged(event) {
+          var offset = self.margin.top + self.spiralPlotConstants.radius;
+          var hullPoints = d3.polygonHull(draggedPoints);
+          d3.select(this).attr("x2", event.x).attr("y2", event.y).on("mouseover", null)
+          var contains = d3.polygonContains(hullPoints, [
+            event.x,
+            event.y,
+          ]);
+          //we are decreasing the selected area
+          console.log(contains)
+          if (contains) {
+            draggedPoints.pop()
+            draggedPoints.pop()
+          }
+          //we are increasing the selected area
+          if (!contains) {
+            draggedPoints.push([event.x, event.y])
+          }
+          updateSelected();
+
+        }
+        function dragended(event) {
+          draggedPoints.push([event.x, event.y])
+          updateSelected();
+          selectionLine2.attr("x2", 450).attr("y2", 450)
+          selectionLine2 = svg.append('line')
+            .style("stroke", "black")
+            .style("stroke-width", 1)
+            .attr("x1", 450)
+            .attr("y1", 450)
+            .attr("x2", event.x)
+            .attr("y2", event.y)
+            .attr("class", "selectionLine2")
+            .on("mouseover", function (d) {
+              console.log("mouseOver1")
+              d3.select(this).transition().duration("50").attr("opacity", "0.5");
+              d3.select(this).style("stroke-width", 5);
+            })
+            .on("mouseout", function (d) {
+              console.log("mouseOut2")
+              d3.select(this).transition().duration("50").attr("opacity", "1");
+              d3.select(this).style("stroke-width", 1);
+            }).call(addLineDrag2());
+
+        }
+        return d3
+          .drag()
+          .on("start", dragstart)
+          .on("drag", dragged)
+          .on("end", dragended);
+      }
       function addDrag() {
         function dragstart(event) {
           if (event.sourceEvent.shiftKey) {
+            selectionLine1.attr("x2", event.x).attr("y2", event.y + yOffset)
+            selectionLine2.attr("x2", 450).attr("y2", 450)
             draggedPoints = [[450, 450]];
             draggedPoints.push([event.x, event.y + yOffset]);
+            draw("start");
           }
         }
         function dragged(event) {
           if (event.sourceEvent.shiftKey) {
             draggedPoints.push([event.x, event.y + yOffset]);
+            draw("");
           }
         }
         function dragended(event) {
           if (event.sourceEvent.shiftKey) {
             draggedPoints.push([event.x, event.y + yOffset]);
+            selectionLine2.attr("x2", 450).attr("y2", 450)
+            selectionLine2 = svg.append('line')
+              .style("stroke", "black")
+              .style("stroke-width", 1)
+              .attr("x1", 450)
+              .attr("y1", 450)
+              .attr("x2", event.x)
+              .attr("y2", event.y + yOffset)
+              .attr("class", "selectionLine2")
+              .on("mouseover", function (d) {
+                console.log("mouseOver2")
+                d3.select(this).transition().duration("50").attr("opacity", "0.5");
+                d3.select(this).style("stroke-width", "5");
+              })
+              .on("mouseout", function (d) {
+                console.log("mouseOut2")
+                d3.select(this).transition().duration("50").attr("opacity", "1");
+                d3.select(this).style("stroke-width", "1");
+              }).call(addLineDrag2());
+
+            console.log(d3.select(".selectionLine2"))
             updateSelected();
           }
         }
 
-        function draw() {
-          //todo draw current selection so user knows what he is selecting
+        function draw(status) {
+          if (status == "start") {
+            selectionLine2 = svg.append('line')
+              .style("stroke", "black")
+              .style("stroke-width", 1)
+              .attr("x1", 450)
+              .attr("y1", 450)
+              .attr("x2", draggedPoints[draggedPoints.length - 1][0])
+              .attr("y2", draggedPoints[draggedPoints.length - 1][1]);
+          } else {
+            selectionLine2
+              .attr("x2", draggedPoints[draggedPoints.length - 1][0])
+              .attr("y2", draggedPoints[draggedPoints.length - 1][1])
+
+          }
         }
         return d3
           .drag()
