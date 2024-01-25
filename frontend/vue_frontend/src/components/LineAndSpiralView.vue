@@ -67,6 +67,7 @@ export default {
   },
   methods: {
     highlightData(highlightedData) {
+      console.log(highlightedData)
       this.highlightedData = highlightedData;
     },
     updateData(selectedData) {

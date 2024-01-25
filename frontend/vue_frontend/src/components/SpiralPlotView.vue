@@ -5,14 +5,30 @@
     <h3>Options:</h3>
     <div class="text-caption">Segments per Cycle</div>
     <v-container>
-      <v-slider aria-label="Segments per Cycle" step="1" v-model="this.segmentsPerCycle" :max="this.displayedData.length"
-        :disabled="this.recommendedSeg" min="1" thumb-label="always">
+      <v-slider
+        aria-label="Segments per Cycle"
+        step="1"
+        v-model="this.segmentsPerCycle"
+        :max="this.displayedData.length"
+        :disabled="this.recommendedSeg"
+        min="1"
+        thumb-label="always"
+      >
         <template v-slot:append>
-          <v-text-field v-model="this.segmentsPerCycle" hide-details single-line density="compact" type="number"
-            style="width: 100px"></v-text-field>
+          <v-text-field
+            v-model="this.segmentsPerCycle"
+            hide-details
+            single-line
+            density="compact"
+            type="number"
+            style="width: 100px"
+          ></v-text-field>
         </template>
       </v-slider>
-      <v-checkbox label="Use recommended segments per cycle" v-model="this.recommendedSeg"></v-checkbox>
+      <v-checkbox
+        label="Use recommended segments per cycle"
+        v-model="this.recommendedSeg"
+      ></v-checkbox>
     </v-container>
     <div>
       <v-card flat>
@@ -20,30 +36,63 @@
           <v-container fluid>
             <v-row>
               <v-col>
-                <v-switch label="Highlight start of each year" v-model="this.options.yearHighlight" :disabled="this.options.granularity == 'Hours' ||
-                  this.baseGranularity == 'Hours'
-                  " color="primary"></v-switch>
-                <v-switch label="Display text for year" v-model="this.options.yearText" :disabled="this.options.granularity == 'Hours' ||
-                  this.baseGranularity == 'Hours'
-                  " color="primary"></v-switch>
+                <v-switch
+                  label="Highlight start of each year"
+                  v-model="this.options.yearHighlight"
+                  :disabled="
+                    this.options.granularity == 'Hours' ||
+                    this.baseGranularity == 'Hours'
+                  "
+                  color="primary"
+                ></v-switch>
+                <v-switch
+                  label="Display text for year"
+                  v-model="this.options.yearText"
+                  :disabled="
+                    this.options.granularity == 'Hours' ||
+                    this.baseGranularity == 'Hours'
+                  "
+                  color="primary"
+                ></v-switch>
               </v-col>
               <v-col>
-                <v-switch label="Highlight start of each month" v-model="this.options.monthHighlight"
-                  :disabled="this.options.granularity == 'Months'" color="primary"></v-switch>
-                <v-switch label="Display text for month" v-model="this.options.monthText"
-                  :disabled="this.options.granularity == 'Months'" color="primary"></v-switch>
+                <v-switch
+                  label="Highlight start of each month"
+                  v-model="this.options.monthHighlight"
+                  :disabled="this.options.granularity == 'Months'"
+                  color="primary"
+                ></v-switch>
+                <v-switch
+                  label="Display text for month"
+                  v-model="this.options.monthText"
+                  :disabled="this.options.granularity == 'Months'"
+                  color="primary"
+                ></v-switch>
               </v-col>
               <v-col>
-                <v-switch label="Highlight start of each day" v-model="this.options.dayHighlight"
-                  :disabled="this.options.granularity != 'Hours'" color="primary"></v-switch>
-                <v-switch label="Enable brushing / Disable zoom" v-model="this.zoomBrushToggle"
-                  color="primary"></v-switch>
+                <v-switch
+                  label="Highlight start of each day"
+                  v-model="this.options.dayHighlight"
+                  :disabled="this.options.granularity != 'Hours'"
+                  color="primary"
+                ></v-switch>
+                <v-switch
+                  label="Enable brushing / Disable zoom"
+                  v-model="this.zoomBrushToggle"
+                  color="primary"
+                ></v-switch>
               </v-col>
               <v-col>
-                <v-select label="Select color scheme" :items="['Cividis', 'Viridis', 'Inferno', 'Magma', 'Plasma']"
-                  v-model="this.options.colorScheme"></v-select>
-                <v-select label="Select granularity" :items="this.options.granularityItems"
-                  v-model="this.options.granularity">
+                <v-select
+                  label="Select color scheme"
+                  :items="['Cividis', 'Viridis', 'Inferno', 'Magma', 'Plasma']"
+                  v-model="this.options.colorScheme"
+                ></v-select>
+                <v-select
+                  label="Select granularity"
+                  :items="this.options.granularityItems"
+                  v-model="this.options.granularity"
+                >
                 </v-select>
               </v-col>
             </v-row>
@@ -56,6 +105,7 @@
 
 <script>
 import * as d3 from "d3";
+import { toRaw } from "vue";
 
 export default {
   props: {
@@ -101,7 +151,7 @@ export default {
       margin: { top: 50, right: 50, bottom: 50, left: 50 },
 
       zoomBrushToggle: true,
-      currentlySelected: undefined,
+      selectedData: undefined,
       recommendedSeg: true,
       segmentsPerCycle: undefined,
       data: null,
@@ -125,12 +175,17 @@ export default {
     recommendedSeg: "setDefaultSegmentsPerCycle",
     selectedGranularity: "updateSelectedGranularity",
     highlightData: "updateHighlightedData",
+    selectedData: "emitSelectedData",
   },
   mounted() {
     this.setGranularities();
     this.setDefaultSegmentsPerCycle();
   },
   methods: {
+    emitSelectedData() {
+      console.log("hello");
+      this.$emit("highlightedData", this.selectedData);
+    },
     updateHighlightedData() {
       this.renderGraph();
       if (this.highlightData == undefined) {
@@ -571,10 +626,10 @@ export default {
         .attr(
           "transform",
           "translate(" +
-          (this.margin.left + this.spiralPlotConstants.radius) +
-          "," +
-          (this.margin.top + this.spiralPlotConstants.radius) +
-          ")"
+            (this.margin.left + this.spiralPlotConstants.radius) +
+            "," +
+            (this.margin.top + this.spiralPlotConstants.radius) +
+            ")"
         );
 
       const x = function (angle, radius) {
@@ -625,11 +680,11 @@ export default {
           this.spiralPlotConstants.cyclePadding +
           this.spiralPlotConstants.innerRadius +
           ((i + 1) / this.segmentsPerCycle) *
-          this.spiralPlotConstants.segmentWidth;
+            this.spiralPlotConstants.segmentWidth;
         var endOuterRadius =
           this.spiralPlotConstants.innerRadius +
           ((i + 1) / this.segmentsPerCycle) *
-          this.spiralPlotConstants.segmentWidth +
+            this.spiralPlotConstants.segmentWidth +
           this.spiralPlotConstants.segmentWidth;
 
         //console.log("Radi: " + startInnerRadius + ", " + startOuterRadius + ", " + endInnerRadius + ", " + endOuterRadius)
@@ -651,11 +706,11 @@ export default {
           this.spiralPlotConstants.innerRadius +
           this.spiralPlotConstants.cyclePadding +
           ((i + 0.5) / this.segmentsPerCycle) *
-          this.spiralPlotConstants.segmentWidth;
+            this.spiralPlotConstants.segmentWidth;
         let midOuterRadius =
           this.spiralPlotConstants.innerRadius +
           ((i + 0.5) / this.segmentsPerCycle) *
-          this.spiralPlotConstants.segmentWidth +
+            this.spiralPlotConstants.segmentWidth +
           this.spiralPlotConstants.segmentWidth;
 
         d.mid1x = x(midAngle, midInnerRadius);
@@ -718,32 +773,46 @@ export default {
           infoBox.transition().duration(50).style("opacity", 1);
           infoBox
             .html(
-              `value: ${Math.round(data.value * 100) / 100} <br> date: ${data.day
+              `value: ${Math.round(data.value * 100) / 100} <br> date: ${
+                data.day
               }.${data.month}.${data.year}`
             )
             .style("left", event.pageX + 10 + "px")
             .style("top", event.pageY - 15 + "px")
             .style("color", "black");
           var currEl = d3.select(this)._groups[0].map((d) => {
-            var date = new Date(d.__data__.year, d.__data__.month - 1, d.__data__.day, d.__data__.hour, 0, 0);
+            var date = new Date(
+              d.__data__.year,
+              d.__data__.month - 1,
+              d.__data__.day,
+              d.__data__.hour,
+              0,
+              0
+            );
             return {
               fullDate: date,
               value: d.__data__.value,
-            }
-          })
-          var isInSelection = false;
-          self.selectedData.forEach((d) => {
-            if (currEl == d) {
-              isInSelection = true;
-            }
-          })
-          if (!isInSelection) {
-            self.selectedData.push(currEl)
-            return;
+            };
+          });
+          var isInSelection = self.selectedData.some(
+            (el) => el.fullDate.getTime() == currEl[0].fullDate.getTime()
+          );
+          if (isInSelection) {
+            const updated = self.selectedData.filter(
+              (el) => el.fullDate.getTime() != currEl[0].fullDate.getTime()
+            );
+            self.selectedData = updated;
           }
-          self.selectedData = self.selectedData.filter((d) => {
-            return d != currEl;
-          })
+          if (!isInSelection) {
+            //deep copy to trigger watcher
+            const updated = [];
+            self.selectedData.forEach((el) => {
+              updated.push(el);
+            });
+            updated.push(currEl[0]);
+            self.selectedData = updated;
+            //self.$emit("highlightedData", self.selectedData)
+          }
         });
 
       this.renderYearHighlights();
@@ -892,37 +961,45 @@ export default {
               infoBox.transition().duration(50).style("opacity", 1);
               infoBox
                 .html(
-                  `value: ${Math.round(data.value * 100) / 100} <br> date: ${data.day
+                  `value: ${Math.round(data.value * 100) / 100} <br> date: ${
+                    data.day
                   }.${data.month}.${data.year}`
                 )
                 .style("left", event.pageX + 10 + "px")
                 .style("top", event.pageY - 15 + "px")
                 .style("color", "black");
-              d3.select(this).attr("opacity", "1")
+              d3.select(this).attr("opacity", "1");
             });
         }, 300);
       }
 
-
-
       function updateSelected(action) {
-        arcs.attr("opacity", "1")
+        arcs.attr("opacity", "1");
         var offset = self.margin.top + self.spiralPlotConstants.radius;
-        draggedPoints.push([offset, offset])
+        draggedPoints.push([offset, offset]);
         var hullPoints = d3.polygonHull(draggedPoints);
         var selectedData = arcs.filter(function (d) {
-          return d3.polygonContains(hullPoints, [offset + d.mid1x, offset + d.mid1y])
+          return d3.polygonContains(hullPoints, [
+            offset + d.mid1x,
+            offset + d.mid1y,
+          ]);
         });
-        selectedData.attr("opacity", "0.5")
+        selectedData.attr("opacity", "0.5");
         var transformed = selectedData._groups[0].map((d) => {
-          var date = new Date(d.__data__.year, d.__data__.month - 1, d.__data__.day, d.__data__.hour, 0, 0);
+          var date = new Date(
+            d.__data__.year,
+            d.__data__.month - 1,
+            d.__data__.day,
+            d.__data__.hour,
+            0,
+            0
+          );
           return {
             fullDate: date,
             value: d.__data__.value,
-          }
-        })
+          };
+        });
         self.selectedData = transformed;
-        self.$emit("highlightedData", transformed)
       }
 
       var yOffset = -70;
@@ -947,13 +1024,13 @@ export default {
         }
 
         function draw() {
-          //todo draw current selection so user knows what he is selecting 
+          //todo draw current selection so user knows what he is selecting
         }
-        return d3.drag()
-          .on('start', dragstart)
-          .on('drag', dragged)
-          .on('end', dragended);
-
+        return d3
+          .drag()
+          .on("start", dragstart)
+          .on("drag", dragged)
+          .on("end", dragended);
       }
 
       const zoom = d3.zoom().scaleExtent([1, 5]).on("zoom", zoomed);
@@ -961,13 +1038,12 @@ export default {
         g.attr("transform", transform);
       }
       if (!this.zoomBrushToggle) {
-        svg.on("mousedown.drag", null)
+        svg.on("mousedown.drag", null);
         svg.call(zoom);
       } else {
-        svg.on("mousedown.zoom", null)
-        svg.call(addDrag())
+        svg.on("mousedown.zoom", null);
+        svg.call(addDrag());
       }
-
     },
   },
 };
