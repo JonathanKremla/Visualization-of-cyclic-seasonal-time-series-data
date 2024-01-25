@@ -962,12 +962,10 @@ export default {
         .attr("x2", 450)
         .attr("y2", 450)
         .on("mouseover", function (d) {
-          console.log("mouseOver1")
           d3.select(this).transition().duration("50").attr("opacity", "0.5");
           d3.select(this).style("stroke-width", 5);
         })
         .on("mouseout", function (d) {
-          console.log("mouseOut2")
           d3.select(this).transition().duration("50").attr("opacity", "1");
           d3.select(this).style("stroke-width", 1);
         }).call(addLineDrag1());
@@ -975,7 +973,6 @@ export default {
 
       function addLineDrag1() {
         function dragstart(event) {
-          console.log(event)
         }
         function dragged(event) {
           var offset = self.margin.top + self.spiralPlotConstants.radius;
@@ -986,10 +983,18 @@ export default {
             event.y,
           ]);
           //we are decreasing the selected area
-          console.log(contains)
           if (contains) {
-            draggedPoints.pop()
-            draggedPoints.pop()
+            const angleA = Math.atan2(selectionLine2.attr("y2") - 450, selectionLine2.attr("x2") - 450);
+            const angleB = Math.atan2(selectionLine1.attr("y2") - 450, selectionLine1.attr("x2") - 450);
+            const angleMid = (angleA + angleB) / 2;
+
+            // Calculate the midpoint coordinates using polar to Cartesian conversion
+            const midX = 450 + 1000 * Math.cos(angleMid);
+            const midY = 450 + 1000 * Math.sin(angleMid);
+            var hp = d3.polygonHull([[450,450], [selectionLine2.attr("x2"), selectionLine2.attr("y2")], [midX,midY],[event.x, event.y]])
+            draggedPoints = draggedPoints.filter(el => {
+              return d3.polygonContains(hp, el)
+            })
           }
           //we are increasing the selected area
           if (!contains) {
@@ -1011,12 +1016,10 @@ export default {
             .attr("y2", event.y)
             .attr("class", "selectionLine1")
             .on("mouseover", function (d) {
-              console.log("mouseOver1")
               d3.select(this).transition().duration("50").attr("opacity", "0.5");
               d3.select(this).style("stroke-width", 5);
             })
             .on("mouseout", function (d) {
-              console.log("mouseOut2")
               d3.select(this).transition().duration("50").attr("opacity", "1");
               d3.select(this).style("stroke-width", 1);
             }).call(addLineDrag1());
@@ -1040,7 +1043,6 @@ export default {
 
       function addLineDrag2() {
         function dragstart(event) {
-          console.log(event)
         }
         function dragged(event) {
           var offset = self.margin.top + self.spiralPlotConstants.radius;
@@ -1051,10 +1053,18 @@ export default {
             event.y,
           ]);
           //we are decreasing the selected area
-          console.log(contains)
           if (contains) {
-            draggedPoints.pop()
-            draggedPoints.pop()
+            const angleA = Math.atan2(selectionLine2.attr("y2") - 450, selectionLine2.attr("x2") - 450);
+            const angleB = Math.atan2(selectionLine1.attr("y2") - 450, selectionLine1.attr("x2") - 450);
+            const angleMid = (angleA + angleB) / 2;
+
+            //create a point which is "infinitely far" away
+            const midX = 450 + 10000* Math.cos(angleMid);
+            const midY = 450 + 10000 * Math.sin(angleMid);
+            var hp = d3.polygonHull([[450,450], [selectionLine1.attr("x2"), selectionLine1.attr("y2")], [midX,midY],[event.x, event.y]])
+            draggedPoints = draggedPoints.filter(el => {
+              return d3.polygonContains(hp, el)
+            })
           }
           //we are increasing the selected area
           if (!contains) {
@@ -1076,12 +1086,10 @@ export default {
             .attr("y2", event.y)
             .attr("class", "selectionLine2")
             .on("mouseover", function (d) {
-              console.log("mouseOver1")
               d3.select(this).transition().duration("50").attr("opacity", "0.5");
               d3.select(this).style("stroke-width", 5);
             })
             .on("mouseout", function (d) {
-              console.log("mouseOut2")
               d3.select(this).transition().duration("50").attr("opacity", "1");
               d3.select(this).style("stroke-width", 1);
             }).call(addLineDrag2());
@@ -1122,17 +1130,14 @@ export default {
               .attr("y2", event.y + yOffset)
               .attr("class", "selectionLine2")
               .on("mouseover", function (d) {
-                console.log("mouseOver2")
                 d3.select(this).transition().duration("50").attr("opacity", "0.5");
                 d3.select(this).style("stroke-width", "5");
               })
               .on("mouseout", function (d) {
-                console.log("mouseOut2")
                 d3.select(this).transition().duration("50").attr("opacity", "1");
                 d3.select(this).style("stroke-width", "1");
               }).call(addLineDrag2());
 
-            console.log(d3.select(".selectionLine2"))
             updateSelected();
           }
         }
