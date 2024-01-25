@@ -221,7 +221,6 @@ export default {
         if(this.highlightedData.values.length != 0) {
           data = this.highlightedData.values;
         }
-        console.log(data)
         
         g
           .selectAll("points")

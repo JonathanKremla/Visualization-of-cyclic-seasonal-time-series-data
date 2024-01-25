@@ -151,7 +151,7 @@ export default {
       margin: { top: 50, right: 50, bottom: 50, left: 50 },
 
       zoomBrushToggle: true,
-      selectedData: undefined,
+      selectedData: [],
       recommendedSeg: true,
       segmentsPerCycle: undefined,
       data: null,
@@ -183,7 +183,6 @@ export default {
   },
   methods: {
     emitSelectedData() {
-      console.log("hello");
       this.$emit("highlightedData", this.selectedData);
     },
     updateHighlightedData() {
@@ -765,8 +764,8 @@ export default {
           d3.select(this).transition().duration("50").attr("opacity", ".5");
         })
         .on("mouseout", function (d, i) {
-          d3.select(this).transition().duration("50").attr("opacity", "1");
           infoBox.html("").style("opacity", 0);
+          d3.select(this).transition().duration("50").attr("opacity", "1");
         })
         .on("click", function (event) {
           var data = event.originalTarget.__data__;
@@ -780,6 +779,7 @@ export default {
             .style("left", event.pageX + 10 + "px")
             .style("top", event.pageY - 15 + "px")
             .style("color", "black");
+          
           var currEl = d3.select(this)._groups[0].map((d) => {
             var date = new Date(
               d.__data__.year,
@@ -802,6 +802,7 @@ export default {
               (el) => el.fullDate.getTime() != currEl[0].fullDate.getTime()
             );
             self.selectedData = updated;
+            d3.select(this.parentNode).attr("opacity", "1")
           }
           if (!isInSelection) {
             //deep copy to trigger watcher
@@ -811,7 +812,7 @@ export default {
             });
             updated.push(currEl[0]);
             self.selectedData = updated;
-            //self.$emit("highlightedData", self.selectedData)
+            d3.select(this.parentNode).attr("opacity", "0.5")
           }
         });
 
