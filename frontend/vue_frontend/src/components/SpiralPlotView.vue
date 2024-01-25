@@ -754,7 +754,9 @@ export default {
               var found = false
               for (let index = 0; index < self.selectedData.length - 1; index++) {
                 temp.push(self.selectedData[index])
-                temp.push(self.selectedData[index+1])
+                if(index == self.selectedData.length-2) {
+                  temp.push(self.selectedData[index+1])
+                }
                 if (self.selectedData[index].fullDate.getTime() == currEl[0].fullDate.getTime()) {
                   found = true;
                 }
