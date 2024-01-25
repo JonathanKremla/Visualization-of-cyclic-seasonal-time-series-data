@@ -748,11 +748,43 @@ export default {
             (el) => el.fullDate.getTime() == currEl[0].fullDate.getTime()
           );
           if (isInSelection) {
-            const updated = self.selectedData.filter(
-              (el) => el.fullDate.getTime() != currEl[0].fullDate.getTime()
-            );
-            self.selectedData = updated;
-            d3.select(this.parentNode).attr("opacity", "1")
+            if (event.metaKey) {
+              var timeDiff = (Math.abs(self.selectedData[self.selectedData.length - 1].fullDate.getTime() - self.selectedData[self.selectedData.length - 2].fullDate.getTime()))
+              var temp = []
+              var found = false
+              for (let index = 0; index < self.selectedData.length - 1; index++) {
+                temp.push(self.selectedData[index])
+                temp.push(self.selectedData[index+1])
+                if (self.selectedData[index].fullDate.getTime() == currEl[0].fullDate.getTime()) {
+                  found = true;
+                }
+                if (Math.abs(self.selectedData[index].fullDate.getTime() - self.selectedData[index + 1].fullDate.getTime()) > timeDiff) {
+                  if (found) {
+                    break;
+                  }
+                  temp = []
+                }
+              }
+
+
+              var temp = temp.map((d) => d.fullDate.getTime());
+              var t = arcs
+                .filter(function (d) {
+                  var date = new Date(`${d.month} ${d.day}, ${d.year} ${d.hour}:00:00`);
+                  return temp.includes(date.getTime());
+                })
+              t.attr("opacity","1")
+              var updated = self.selectedData.filter((d) => {
+                return !temp.includes(d.fullDate.getTime())
+              })
+              self.selectedData = updated;
+            } else {
+              d3.select(this.parentNode).attr("opacity", "1")
+              const updated = self.selectedData.filter(
+                (el) => el.fullDate.getTime() != currEl[0].fullDate.getTime()
+              );
+              self.selectedData = updated;
+            }
           }
           if (!isInSelection) {
             //deep copy to trigger watcher
@@ -991,7 +1023,7 @@ export default {
             // Calculate the midpoint coordinates using polar to Cartesian conversion
             const midX = 450 + 1000 * Math.cos(angleMid);
             const midY = 450 + 1000 * Math.sin(angleMid);
-            var hp = d3.polygonHull([[450,450], [selectionLine2.attr("x2"), selectionLine2.attr("y2")], [midX,midY],[event.x, event.y]])
+            var hp = d3.polygonHull([[450, 450], [selectionLine2.attr("x2"), selectionLine2.attr("y2")], [midX, midY], [event.x, event.y]])
             draggedPoints = draggedPoints.filter(el => {
               return d3.polygonContains(hp, el)
             })
@@ -1059,9 +1091,9 @@ export default {
             const angleMid = (angleA + angleB) / 2;
 
             //create a point which is "infinitely far" away
-            const midX = 450 + 10000* Math.cos(angleMid);
+            const midX = 450 + 10000 * Math.cos(angleMid);
             const midY = 450 + 10000 * Math.sin(angleMid);
-            var hp = d3.polygonHull([[450,450], [selectionLine1.attr("x2"), selectionLine1.attr("y2")], [midX,midY],[event.x, event.y]])
+            var hp = d3.polygonHull([[450, 450], [selectionLine1.attr("x2"), selectionLine1.attr("y2")], [midX, midY], [event.x, event.y]])
             draggedPoints = draggedPoints.filter(el => {
               return d3.polygonContains(hp, el)
             })
