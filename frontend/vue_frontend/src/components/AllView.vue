@@ -148,7 +148,9 @@ export default {
       }
     },
     resetHighlighting() {
+      console.log("hello")
       this.highlightedData = null;
+      this.highlightedSpiralData = null;
     },
     updateData(selectedData) {
       this.displayedData = selectedData;

@@ -16,7 +16,7 @@ customData={}
 class SampleDataManager(Resource):
     def __init__(self):
         #fill sample data
-        csvReader.preprocess_csv("ressources/rdu-weather-history.csv")
+        csvReader.preprocess_csv("ressources/output_file.csv")
         csvReader.preprocess_csv("ressources/MLTempDataset.csv")
         sampleData['sampleData1']=csvReader.read_csv("ressources/output_file.csv", "tmax", "date")
         sampleData['sampleData2']=csvReader.read_csv("ressources/MLTempDataset.csv", "DAYTON_MW", "Datetime")

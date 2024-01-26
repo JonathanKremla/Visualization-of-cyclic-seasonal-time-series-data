@@ -556,6 +556,7 @@ export default {
     },
 
     renderGraph() {
+      this.selectedData = null;
       d3.select(this.$refs.spiralPlot).selectAll("*").remove();
       var c = `d3.interpolate${this.options.colorScheme}`;
       var color = d3.scaleSequential(eval(c));
@@ -748,7 +749,7 @@ export default {
             (el) => el.fullDate.getTime() == currEl[0].fullDate.getTime()
           );
           if (isInSelection) {
-            if (event.metaKey) {
+            if (event.metaKey || event.ctrlKey) {
               var timeDiff = (Math.abs(self.selectedData[self.selectedData.length - 1].fullDate.getTime() - self.selectedData[self.selectedData.length - 2].fullDate.getTime()))
               var temp = []
               var found = false
