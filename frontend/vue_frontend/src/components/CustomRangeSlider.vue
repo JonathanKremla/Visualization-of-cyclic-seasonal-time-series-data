@@ -2,7 +2,7 @@
   <v-range-slider
     v-if="this.max"
     v-model="this.displayedRange"
-    :step=this.steps
+    :step="this.steps"
     show-ticks="always"
     :ticks="this.ticks"
     :max="this.max"
@@ -36,32 +36,30 @@ export default {
       this.$emit("updatedRange", this.displayedRange);
     },
     calculateTicks() {
-      if (this.granularity === "day") {
-        this.steps=30;
+      if (this.granularity === "Days") {
+        this.steps = 30;
         const uniqueMonths = [
           ...new Set(this.data.map((item) => new Date(item.date).getMonth())),
         ];
-        console.log(uniqueMonths);
         const uniqueYears = [
           ...new Set(
             this.data.map((item) => new Date(item.date).getFullYear())
           ),
         ];
-      var counter = 0;
-      for (let index = 0; index < uniqueYears.length; index++) {
-        uniqueMonths.forEach((val) => {
-          if (val === 0) {
-            this.ticks[counter * 30] = uniqueYears[index];
-          } else {
-            this.ticks[counter * 30] = "";
-          }
-          counter += 1;
-        });
+        var counter = 0;
+        for (let index = 0; index < uniqueYears.length; index++) {
+          uniqueMonths.forEach((val) => {
+            if (val === 0) {
+              this.ticks[counter * 30] = uniqueYears[index];
+            } else {
+              this.ticks[counter * 30] = "";
+            }
+            counter += 1;
+          });
+        }
       }
-      }
-      console.log(this.data);
-      if (this.granularity === "hour") {
-        this.steps = 24
+      if (this.granularity === "Hours") {
+        this.steps = 24;
         const uniqueMonths = [
           ...new Set(
             this.data.map((item) =>

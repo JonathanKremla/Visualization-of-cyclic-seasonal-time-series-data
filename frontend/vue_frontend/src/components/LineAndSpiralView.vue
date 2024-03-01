@@ -1,46 +1,36 @@
 <template>
   <div>
     <router-link to="/">
-      <button>Home</button>
+      <v-btn>
+        Home
+        <v-icon size="large" color="black" icon="mdi-home"></v-icon>
+      </v-btn>
     </router-link>
     <CustomRangeSlider 
     v-if="this.dataSize"
+    v-model="this.displayedDataRange"
     :data="this.data"
     :max="this.dataSize"
     :granularity="this.granularity"
     v-on:updatedRange="updateRange"
     ></CustomRangeSlider>
     <h2>Line Plot</h2>
-    <LinePlotView v-if="this.displayedData" :displayedData="this.displayedData">
+    <LinePlotView v-if="this.displayedData" 
+      :displayedData="this.displayedData"
+      :updatedGranularity="this.updatedGranularity"
+      :highlightedData="this.highlightedData"
+      v-on:selectedData="this.updateData"
+    >
     </LinePlotView>
 
     <h2>Spiral Plot</h2>
     <div>
-      <div class="text-caption">Segments per Cycle</div>
-      <v-slider
-        v-if="this.displayedData"
-        aria-label="Segments per Cycle"
-        step="1"
-        v-model="this.segmentsPerCycle"
-        :max="this.displayedData.length"
-        min="1"
-        thumb-label="always"
-      >
-        <template v-slot:append>
-          <v-text-field
-            v-model="this.segmentsPerCycle"
-            hide-details
-            single-line
-            density="compact"
-            type="number"
-            style="width: 100px"
-          ></v-text-field>
-        </template>
-      </v-slider>
       <SpiralPlotView
         v-if="this.displayedData"
-        :displayedData="this.displayedData"
-        :segmentsPerCycle="this.segmentsPerCycle"
+        :baseGranularity="this.granularity"
+        :displayedData="this.selectedData ? this.selectedData : this.displayedData"
+        v-on:highlightedData="this.highlightData"
+        v-on:updateGranularity="updateGranularity"
       ></SpiralPlotView>
     </div>
   </div>
@@ -56,11 +46,14 @@ export default {
     return {
       ticks: {},
       displayedRange: [0, 0],
-      segmentsPerCycle: 365,
       data: null,
       displayedData: null,
+      displayedDataRange: [0,0],
       dataSize: 0,
       granularity: undefined,
+      updatedGranularity: undefined,
+      selectedData: undefined,
+      highlightedData: undefined,
     };
   },
   watch: {
@@ -73,6 +66,24 @@ export default {
     this.checkGranularity();
   },
   methods: {
+    highlightData(highlightedData) {
+      this.highlightedData = highlightedData;
+    },
+    updateData(selectedData) {
+      this.displayedData = selectedData;
+      this.displayedDataRange = [
+        this.data.findIndex((el) => el.date == selectedData[0].date),
+        this.data.findIndex(
+          (el) => el.date == selectedData[selectedData.length - 1].date
+        ),
+      ];
+      console.log(this.displayedDataRange)
+      console.log(selectedData)
+      console.log(this.data)
+    },
+    updateGranularity(newGranularity) {
+      this.updatedGranularity = newGranularity;
+    },
     checkGranularity(){
       var days = [];
       this.data.forEach((el) => {
@@ -97,18 +108,15 @@ export default {
 
       switch (average) {
         case 1:
-          this.granularity = "day"
+          this.granularity = "Days"
           break;
         case 24:
-          this.granularity = "hour"
+          this.granularity = "Hours"
           break;
         default:
           console.error("Unknown granularity or too many missing values")
           break;
       }
-      console.log(this.granularity)
-
-
     },
     updateRange(updatedRange) {
       this.displayedRange = updatedRange
@@ -119,10 +127,10 @@ export default {
         // Set a new timeout to debounce the watcher function after 300 milliseconds of inactivity
         this.watcherTimeout = setTimeout(() => {
           this.displayedData = this.data.slice(
-            this.displayedRange[0],
+            this.displayedRange[0]-1,
             this.displayedRange[1]
           );
-        }, 100);
+        }, 300);
       }
     },
     retrieveData() {
@@ -130,6 +138,24 @@ export default {
         // Retrieve JSON string from local storage and parse it to a JavaScript object
         const jsonData = localStorage.getItem("data");
         const parsedData = JSON.parse(JSON.parse(jsonData));
+        var tempDate;
+        if (Object.keys(parsedData)[0].split(" ")[1] == undefined) {
+          this.data = Object.entries(parsedData).map(([date, value]) => ({
+            date: (() => {
+              var d = new Date(date)
+              d.setHours(0)
+              return d.toLocaleDateString("en-US", {
+                hour: "numeric",
+                minute: "numeric",
+                second: "numeric",
+                day: "numeric",
+                month: "short",
+                year: "numeric",
+              });
+            })(),
+            value: parseFloat(value),
+          }));
+        } else {
         this.data = Object.entries(parsedData).map(([date, value]) => ({
           date: new Date(date).toLocaleDateString("en-US", {
             hour: "numeric",
@@ -141,9 +167,11 @@ export default {
           }),
           value: parseFloat(value),
         }));
+        }
         this.displayedData = this.data;
         this.dataSize = this.data.length;
         this.displayedRange = [0, this.dataSize];
+        this.displayedDataRange = [0, this.dataSize];
       } catch (error) {
         console.error("Error retrieving data from local storage:", error);
       }
